@@ -2,7 +2,7 @@
 
 [Agent Skills](https://agentskills.io) that teach coding agents (Claude Code, Cursor, Codex, Copilot, Gemini CLI, …) how to instrument infrastructure and applications with [Middleware](https://middleware.io) and verify that telemetry arrives.
 
-> **Status: v0.1 preview.** Instrumentation skills are in place; the `mw-troubleshoot` skill is coming next.
+> **Status: v0.1 preview.** Instrumentation skills are in place; the `mw-troubleshoot` skill is coming next. See [ROADMAP.md](ROADMAP.md) for design decisions, open questions and next steps.
 
 ## Skills
 
