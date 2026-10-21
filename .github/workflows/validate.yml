@@ -1,0 +1,42 @@
+name: Validate skills
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Lint SKILL.md frontmatter and references
+        run: node scripts/validate-skills.mjs
+
+      - name: Discover skills with the skills CLI
+        run: npx -y skills add "$GITHUB_WORKSPACE" --list
+
+      - name: Install all skills into a scratch project (smoke test)
+        run: |
+          mkdir -p "$RUNNER_TEMP/smoke" && cd "$RUNNER_TEMP/smoke"
+          npx -y skills add "$GITHUB_WORKSPACE" --skill '*' --agent claude-code -y --copy
+          expected=$(ls "$GITHUB_WORKSPACE/skills" | sort)
+          installed=$(ls .claude/skills | sort)
+          echo "Installed:"; echo "$installed"
+          if [ "$expected" != "$installed" ]; then
+            echo "::error::Installed skills differ from skills/ directory"
+            diff <(echo "$expected") <(echo "$installed")
+            exit 1
+          fi
+          for s in $expected; do
+            test -f ".claude/skills/$s/SKILL.md" || { echo "::error::$s/SKILL.md missing after install"; exit 1; }
+          done
