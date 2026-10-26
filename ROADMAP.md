@@ -97,7 +97,17 @@ Cut generic explanation that agents already know (e.g. most of `mw-instrument-k8
 - [ ] Confirm the license (MIT chosen as a placeholder, matching Datadog).
 - [ ] Add version tags/releases and a CHANGELOG; bump `metadata.version` per skill on change.
 
-### 6. More skills (later)
+### 6. Cross-agent compatibility (TODO)
+
+The skills follow the open [Agent Skills](https://agentskills.io) format (`SKILL.md` + `references/`), so they aren't Claude-only. Claude Code, OpenAI Codex, Cursor, GitHub Copilot and Gemini CLI read them natively, and `npx skills add` installs into each. A few parts still lean on Claude Code, and quality varies by model, so:
+
+- [ ] **Test across agents.** Run the same prompts in Codex, Cursor and Copilot alongside Claude Code; record triggering, guardrail-following and hallucinations in the test matrix (section 3).
+- [ ] **Vendor-neutral README.** Show Middleware MCP setup for several clients (Claude Code, Cursor, Codex, VS Code/Copilot), not only `claude mcp add`. Describe invocation as "name the skill or describe the task", with `/skill-name` as the Claude Code shortcut.
+- [ ] **Multi-agent CI smoke test.** Extend `.github/workflows/validate.yml` to install with `--agent claude-code,codex,cursor` (or similar) and check each agent's skills directory.
+- [ ] **`AGENTS.md` index (optional).** Add a root `AGENTS.md` that lists the skills and when to use each, for tools without native skill support.
+- [ ] **Review frontmatter.** `metadata.alwaysApply` was copied from Datadog's format and is ignored by most tools; keep or drop it.
+
+### 7. More skills (later)
 
 - `mw-synthetics`: create/update HTTP and browser checks via MCP (`create_synthetic_check`, `create_browser_test`).
 - `mw-dashboards` / `mw-alerts`: dashboards, widgets, alert rules via MCP or the public API.
