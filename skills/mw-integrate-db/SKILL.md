@@ -2,7 +2,7 @@
 name: mw-integrate-db
 description: EXPERIMENTAL. Set up Middleware database integrations (PostgreSQL, MySQL/MariaDB, MongoDB, Redis/Valkey) on a Linux host that runs the Middleware host agent, without the UI. Detects databases on the host, prepares the database (stats extensions, least-privilege monitoring user), saves the integration through the Middleware agent-settings REST API, and verifies the agent starts collecting. Use when asked to monitor, integrate, connect, or fix a database integration in Middleware on a VM or bare-metal host.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,database,integration,postgresql,mysql,mariadb,mongodb,redis,linux,experimental
@@ -28,7 +28,7 @@ Configures DB integrations for the **Linux host agent** through the same REST AP
 
 ## Phase 1: Discover
 
-1. Resolve `MW_UID` (project subdomain), `MW_PUBLIC_API_KEY`, and the host ID. The host ID is the agent host's `hostname`; confirm it in the GET response (`setting.host_id`).
+1. Get `MW_PUBLIC_API_KEY` and `MW_UID` via `mw-setup` (discovery: env > `.env.local` > `.env` > `~/.config/middleware/credentials.env`; validate with `GET /agent/hosts`). That call also lists host IDs. The host ID is the agent host's `hostname`; confirm it in the GET response (`setting.host_id`).
 2. Confirm the agent is running: `systemctl is-active mw-agent mw-agent-opamp`. Managed (OpAMP) installs run as `mw-agent-opamp` and render config to `/etc/mw-agent/opamp/effective.yaml`.
 3. GET the host setting and save it as a backup. Read `config.linux.integrations` for the databases the agent detected (type, ports, systemd vs docker), and the existing `*_config` keys for what's already configured.
 4. Cross-check on the host if you have shell access: `ss -ltnp | grep -E ':5432|:3306|:27017|:6379'`.
