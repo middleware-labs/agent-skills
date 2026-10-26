@@ -13,6 +13,7 @@ This document captures the current state of the Middleware agent skills, the des
 | `mw-instrument-otel` | ✅ Done |
 | `mw-instrument-rum` | ✅ Done (Browser, Android, iOS, React Native, Flutter, source maps) |
 | `mw-instrument-llmo` | ✅ Done |
+| `mw-integrate-db` | 🧪 Experimental: PostgreSQL verified via API; MySQL, MongoDB, Redis unverified |
 | `mw-troubleshoot` | ❌ Not started — **top priority** |
 
 - CI (`.github/workflows/validate.yml`): lints frontmatter + reference links (`scripts/validate-skills.mjs`) and smoke-tests `npx skills add` installation.
@@ -89,6 +90,17 @@ Cut generic explanation that agents already know (e.g. most of `mw-instrument-k8
 - [ ] Fix the doc typos listed below.
 - [ ] Add a docs-search tool to the Middleware MCP server, similar to Datadog's `dd-docs`.
 - [ ] Long term: generate `references/` facts cards from the docs source in CI so they never drift.
+- [ ] **Agent-settings API / swagger (unblocks `mw-integrate-db` leaving experimental).** Spec: `https://app.middleware.io/swagger.json`, generated from bifrost godoc.
+  1. `POST /agent/setting/{hostId}` (the save call) is missing from the spec: its godoc in `agent.handler.go` is separated from `SaveHostSpecificSetting` by `const` declarations, so swag drops it.
+  2. Document `value` (base64 of `{"linux": {"<db>_config": {...}}}`), or accept the plain `config` JSON field that the request struct already has.
+  3. Add per-integration schemas (`postgres_config`, `mysql_config`, `mongodb_config`, `redis_config`, ...) with defaults. Today `config` is `additionalProperties: true` all the way down.
+  4. Document merge semantics (keys sent under a platform replace; others are kept; `{}` removes one integration from one host).
+  5. `DELETE /agent/setting/rm/{platform}/{configKey}` removes the integration from **all hosts in the project**: add a bold warning and a per-host delete.
+  6. `GET /agent/setting/{hostId}` returns `token` (the host's ingestion key) and DB passwords: redact or mark them sensitive.
+  7. Add `operationId`s (all 73 operations lack them), rename the `AGENT PRIVATE ROUTES` tag, merge `BUILDER`/`Builder`, and give the ingestion-token routes their own security scheme or hide them.
+  8. Document `Authorization: ApiKey <key>`, the base URL `https://<project_uid>.middleware.io/api/v1`, and that hostId = agent hostname. Type `isKubeAgent`, `platform` and `configKey` with enums. Give detected-integrations a real response schema.
+  9. Trim the ~19k-character `info.description`, link `swagger.json` from the docs page as a plain link, and publish `llms.txt`.
+  10. Ideally add MCP tools (`list_detected_integrations`, `configure_db_integration`) that validate payloads server-side.
 
 ### 5. Packaging & distribution
 
@@ -112,7 +124,8 @@ The skills follow the open [Agent Skills](https://agentskills.io) format (`SKILL
 - `mw-synthetics`: create/update HTTP and browser checks via MCP (`create_synthetic_check`, `create_browser_test`).
 - `mw-dashboards` / `mw-alerts`: dashboards, widgets, alert rules via MCP or the public API.
 - `mw-logs`: log pipelines, custom log paths, parsing (currently split across host/otel skills).
-- Cloud integrations (AWS/Azure/GCP), database integrations, `mw-onboarding` orchestrator that chains setup → host/k8s → APM → RUM.
+- `mw-integrate-db`: verify MySQL, MongoDB and Redis via the API; add SQL Server, Oracle, ClickHouse, Kafka and other integrations; Kubernetes-agent integrations (`config.k8s`).
+- Cloud integrations (AWS/Azure/GCP), `mw-onboarding` orchestrator that chains setup → host/k8s → APM → RUM.
 
 ## Unverified facts — confirm with product/eng
 

@@ -5,7 +5,7 @@
 | Ingestion API key | Host/K8s/Docker/Windows agents, APM SDKs, OTLP, Lambda | In-app Installation pages; project Settings → API Keys (ingestion key) | `MW_API_KEY`, `api-key:` in `/etc/mw-agent/agent-config.yaml`, `global.mw.apiKey` (Helm), OTLP header `authorization=<key>`, Lambda resource attr `mw.account_key=<key>` |
 | Target / UID | Same as above | Same pages; your UID is the subdomain in `https://<MW_UID>.middleware.io` | `MW_TARGET=https://<MW_UID>.middleware.io:443`, `target:` (agent), `global.mw.target` (Helm), `OTEL_EXPORTER_OTLP_ENDPOINT` |
 | RUM account token | Browser RUM (`accountKey`), Android/iOS (`rumAccessToken`), React Native/Flutter, sourcemap uploader `--apiKey` | Installation → RUM → (platform) → New Application | RUM init only; it's shipped to browsers so it's not secret, but don't reuse the ingestion key there |
-| Public API key | REST API (`/api/v1/builder/...`, `/synthetics`, ...) | Settings → API Keys (`https://app.middleware.io/settings/api-keys`). Spec: "Do not use the project API key that is used for agent installation." | Header `ApiKey: <token>` or `Authorization: ApiKey <token>` against `https://<project_domain>/api/v1` |
+| Public API key (`MW_PUBLIC_API_KEY`) | REST API (`/api/v1/builder/...`, `/synthetics`, `/agent/setting/...` for DB integrations, ...) | Settings → API Keys (`https://app.middleware.io/settings/api-keys`). Spec: "Do not use the project API key that is used for agent installation." | Header `ApiKey: <token>` or `Authorization: ApiKey <token>` against `https://<project_domain>/api/v1` |
 
 ## Common mistakes
 
