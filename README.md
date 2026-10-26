@@ -44,6 +44,25 @@ Local development (test un-pushed changes):
 npx skills add ./ --skill '*' --agent claude-code -y
 ```
 
+## First run: credentials
+
+Skills discover credentials, in order, from:
+1. the shell environment;
+2. the project's `.env.local`, then `.env`;
+3. `~/.config/middleware/credentials.env`;
+4. an installed Middleware agent.
+
+They ask only for what the task needs, and never echo secrets. The easiest setup is to export credentials before starting your agent:
+
+```bash
+export MW_TARGET=https://<your-uid>.middleware.io:443   # Installation page
+export MW_API_KEY=<ingestion key>                        # Installation page / Settings → API Keys
+export MW_PUBLIC_API_KEY=<public API key>                # Settings → API Keys (only for mw-integrate-db / REST)
+claude   # or codex, cursor, …
+```
+
+Or keep them in `~/.config/middleware/credentials.env` (`KEY=value` lines, `chmod 600`). Pasting a key into chat works as a fallback; the skill saves it to that file, and you should rotate the key afterwards. In CI, set the env vars; skills don't prompt there.
+
 ## Recommended: connect the Middleware MCP server
 
 Skills use it to confirm hosts, services and RUM sessions are actually reporting.

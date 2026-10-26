@@ -109,6 +109,17 @@ Cut generic explanation that agents already know (e.g. most of `mw-instrument-k8
 - [ ] Confirm the license (MIT chosen as a placeholder, matching Datadog).
 - [ ] Add version tags/releases and a CHANGELOG; bump `metadata.version` per skill on change.
 
+### 5b. Credentials: browser sign-in (later; needs backend work)
+
+Today `mw-setup` uses env/file discovery plus manual entry (v0.2.0). The target state is Datadog-style browser sign-in: OAuth PKCE with a loopback redirect, then fetch the target and ingestion key, then write a mode-600 file. bifrost already has DCR, PKCE and refresh. Missing:
+- [ ] Enforce OAuth scopes on API routes (granted scopes are stored but not checked today). Prerequisite for anything below.
+- [ ] Scope allowlist + new scopes `credentials:read`, `agent_settings:read`, `agent_settings:write`.
+- [ ] `GET /api/v1/onboarding/credentials` (project UID, target, ingestion key) instead of the UI-internal `/account/init`.
+- [ ] Pre-registered public client `mw-agent-skills` (PKCE, no secret, any loopback port).
+- [ ] MCP tools `get_ingestion_credentials`, `list_detected_integrations`, `configure_db_integration`, so skills can use MCP as the primary path.
+
+Estimate ~5–8 backend engineer-days for the must-haves, plus ~2 days on the skills side.
+
 ### 6. Cross-agent compatibility (TODO)
 
 The skills follow the open [Agent Skills](https://agentskills.io) format (`SKILL.md` + `references/`), so they aren't Claude-only. Claude Code, OpenAI Codex, Cursor, GitHub Copilot and Gemini CLI read them natively, and `npx skills add` installs into each. A few parts still lean on Claude Code, and quality varies by model, so:
