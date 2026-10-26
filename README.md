@@ -15,6 +15,7 @@
 | [`mw-instrument-otel`](skills/mw-instrument-otel) | Point existing OpenTelemetry SDKs / Collectors / Fluent Bit at Middleware |
 | [`mw-instrument-rum`](skills/mw-instrument-rum) | Browser RUM (React, Next.js, Angular, Vue, Svelte, HTML), Android, iOS, React Native, Flutter, source maps |
 | [`mw-instrument-llmo`](skills/mw-instrument-llmo) | LLM Observability via `middleware-llmobs`, Traceloop, OpenLIT |
+| [`mw-integrate-db`](skills/mw-integrate-db) | **Experimental.** PostgreSQL, MySQL/MariaDB, MongoDB, Redis integrations on Linux hosts via the agent-settings API (no UI). Needs a public API key |
 
 Each skill is a `SKILL.md` (workflow + guardrails) plus `references/` (exact commands, package names, options) that the agent loads only when needed.
 
