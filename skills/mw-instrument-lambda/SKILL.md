@@ -75,8 +75,13 @@ Wait for the user's OK.
 
 1. With confirmation, invoke once: `aws lambda invoke --function-name <name> --payload '{}' --cli-binary-format raw-in-base64-out /tmp/out.json`. Use a realistic test event if the handler needs one, and ask the user for it.
 2. Check the CloudWatch logs for wrapper, exporter or collector errors: `aws logs tail /aws/lambda/<name> --since 10m | grep -iE 'Failed to export|OTLPExporterError|Exporting failed|Extension.InitError'`. Export failures are logged (e.g. Python `Failed to export spans batch code: 400`, Node `OTLPExporterError: Bad Request`, Collector `Exporting failed`), so no matches after a few invocations means exports are succeeding. `Extension.InitError` means the collector didn't start: set `OPENTELEMETRY_EXTENSION_LOG_LEVEL=debug` to see why. See `references/troubleshooting.md`.
-3. Logs from the Collector `decouple` processor are sent on the *next* invocation, so invoke twice when verifying logs.
-4. If the Middleware MCP server is connected, `query` traces for `service.name=<OTEL_SERVICE_NAME>` and logs for that service. Otherwise point to APM → Services and Logs. Never claim data arrived unless you saw it.
+3. Logs from the Collector `decouple` processor are sent on the *next* invocation, so invoke twice when verifying logs. If you set `OPENTELEMETRY_EXTENSION_LOG_LEVEL=debug` while troubleshooting, set it back to `info` afterwards: debug output is shipped to Middleware as logs.
+4. If the Middleware MCP server is connected, confirm arrival (filter keys and columns must come from `get_metrics` first: `data_type='filters'` and `'metrics'` for `trace` and `log`):
+   - **Traces:** `query` with `resources: ["trace"]`, `widget_type: "data_table"`, columns `spanName`, `traceId`, `spanId`, `parentSpanId`, filter `{"service.name": {"=": "<OTEL_SERVICE_NAME>"}}`. Expect one handler span per invocation plus child spans for instrumented calls (`GET`, DB, AWS SDK).
+   - **Logs:** `resources: ["log"]`, columns `timestampMs`, `body`, `traceId`, `spanId`, filter on `service.name` and a known log text (`{"body": {"ILIKE": "%<text>%"}}`). Check that each line appears once, and whether `traceId` is set and matches a handler span (expected for Python with OTel logging; empty for Telemetry-API stdout logs).
+   - Keep `limit` small. Unfiltered log queries can return a lot of collector chatter (especially at `debug` level).
+
+   Otherwise point to APM → Services and Logs. Never claim data arrived unless you saw it.
 5. Report:
    - account, region and function;
    - method used;

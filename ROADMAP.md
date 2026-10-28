@@ -166,6 +166,7 @@ These are used or mentioned in the skills but could not be confirmed from public
 - Node.js docs: `track.errorRecord(e)` should be `tracker.errorRecord(e)`.
 - Java docs: `-Dotel.traces.sampler=otel.traces.sampler=parentbased_traceidratio` should be `-Dotel.traces.sampler=parentbased_traceidratio`.
 - Lambda Java docs: `mw.account_key==<KEY>` has a double `=`.
+- Lambda Python docs (revamp): the `collector.yaml` example has no `metrics` pipeline, so the SDK logs `Failed to export metrics batch code: 404` on every invocation. The `logger.propagate = False` advice also breaks trace-linked OTel logs; recommend `telemetryapi: types: [platform]` + `OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true` instead (verified 2026-10-28).
 - Node.js docs say Node 18.17.1+, but the npm `engines` field says `^18.19.0 || >=20.6.0`.
 - Python docs say 3.9+, but PyPI `requires_python` says `>=3.8`.
 - RUM docs disagree on the default propagation format (b3 vs W3C).

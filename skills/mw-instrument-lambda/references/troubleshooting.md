@@ -15,7 +15,11 @@ Start with `aws logs tail /aws/lambda/<name> --since 15m` after an invocation. F
 | Collector `failed to get config` / exits at start | `OPENTELEMETRY_COLLECTOR_CONFIG_URI` wrong or file missing | `/var/task/collector.yaml` must be in the package root (or valid `s3://`/`https://`) |
 | Collector `401`/`400` from Middleware | Wrong key or target; key not in env for `${env:MW_API_KEY}` | Check `MW_API_KEY` env and endpoint `https://<MW_UID>.middleware.io:443` |
 | Logs missing, traces fine | Logs only flush on the next invocation (`decouple`), missing `service.name`, or no logs pipeline | Invoke again; keep `resource` with `service.name`; add the `telemetryapi` logs pipeline |
-| Python logs duplicated | Logger propagates to root | `logger.propagate = False` |
+| Python logs duplicated | Both Telemetry API stdout copy and OTel logging copy are shipped | `telemetryapi: types: [platform]` in `collector.yaml` (don't use `logger.propagate = False`) |
+| Python app logs missing (traces fine), OTel logging enabled | `logger.propagate = False` stops records reaching the root OTLP handler; or `types: [platform]` without logging instrumentation | Remove `propagate = False`; set `OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true` + `OTEL_LOGS_EXPORTER=otlp` |
+| Logs in Middleware have no `traceId` | Logs came from the Telemetry API (stdout copies) | Python: OTel logging instrumentation over OTLP. Node.js: needs an OTel logs bridge (pino/winston) |
+| Python: `Failed to export metrics batch code: 404, reason: Not Found` | `collector.yaml` has no `metrics` pipeline | Add `metrics: {receivers: [otlp], processors: [resource, decouple], exporters: [otlp]}` |
+| Outbound HTTP call has no span (Python) | `urllib`, `urllib3`, `httpx` aren't instrumented by the layer | Add the matching `opentelemetry-instrumentation-*` package, or use `requests` |
 | Spans missing or partial | Freeze before export | Node: `SimpleSpanProcessor` via `lambda-config.js`; Python: `OTEL_BSP_SCHEDULE_DELAY=500`; Go: `otellambda.WithFlusher(tp)`; enough `Timeout` |
 | Timeouts or slow cold starts after enabling | Agent/collector start-up (Java especially), remote collector config | Raise `Timeout`/memory; load config from `/var/task` instead of S3/HTTPS |
 | Collector warns `grpc: addrConn.createTransport failed to connect to {Addr: "[2606:…]:443"…` | gRPC also tries the endpoint's IPv6 addresses; Lambda outside a VPC has no IPv6 egress | Harmless if there are no `Exporting failed` lines (exports go over IPv4). Check with `aws logs tail … \| grep -c 'Exporting failed'` |
