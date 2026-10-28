@@ -1,6 +1,6 @@
 # Browser RUM
 
-Sources: https://docs.middleware.io/rum/getting-started · /rum/installation · /rum/rum-reactjs · /rum/rum-nextjs · /rum/session-recording-privacy
+Sources: https://docs.middleware.io/get-started/rum/javascript.md · /rum/installation · /rum/rum-reactjs · /rum/rum-nextjs · /rum/session-recording-privacy
 
 ## Script + init (canonical)
 

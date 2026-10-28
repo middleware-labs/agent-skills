@@ -1,6 +1,6 @@
 # iOS RUM
 
-Source: https://docs.middleware.io/rum/rum-ios · MiddlewareRum 2.3.0 · iOS 13+, macOS 10.15+, tvOS 13+
+Source: https://docs.middleware.io/get-started/rum/ios.md · MiddlewareRum 2.3.0 · iOS 13+, macOS 10.15+, tvOS 13+
 
 ## Install
 

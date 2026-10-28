@@ -1,6 +1,6 @@
 # Flutter RUM
 
-Source: https://docs.middleware.io/rum/flutter · `middleware_flutter_opentelemetry` ^2.2.0 · Flutter/Dart 3.7+, Android minSdk 24
+Source: https://docs.middleware.io/get-started/rum/flutter.md · `middleware_flutter_opentelemetry` ^2.2.0 · Flutter/Dart 3.7+, Android minSdk 24
 
 `pubspec.yaml`:
 ```yaml

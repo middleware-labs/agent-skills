@@ -1,6 +1,6 @@
 # Ruby
 
-Source: https://docs.middleware.io/apm-configuration/ruby · Ruby 3.0+. Traces + profiling only (no metrics/logs).
+Source: https://docs.middleware.io/get-started/apm/ruby.md · Ruby 3.0+. Traces + profiling only (no metrics/logs).
 
 ## Gemfile
 

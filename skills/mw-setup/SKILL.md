@@ -2,7 +2,7 @@
 name: mw-setup
 description: Discover, collect and validate Middleware credentials before any instrumentation — the ingestion API key (MW_API_KEY), the target URL (MW_TARGET, https://your-uid.middleware.io:443), the public API key (MW_PUBLIC_API_KEY) and RUM tokens — from env vars, .env files, a user credentials file, or an installed agent; guide the user to provide missing ones safely; validate them against Middleware; and connect the Middleware MCP server to verify data. Use when a user starts with Middleware, asks where to find their API key or target, hits a 400/401 from Middleware, or when another mw-* skill needs credentials.
 metadata:
-  version: "0.2.0"
+  version: "0.2.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,setup,credentials,api-key,mcp,onboarding
@@ -26,6 +26,7 @@ Other `mw-*` skills call this one when they need credentials. Goal: get to **val
 | DB integrations / any REST API call (`mw-integrate-db`) | `MW_PUBLIC_API_KEY` + `MW_UID` |
 | Browser / mobile RUM | RUM account token + `MW_TARGET` |
 | Verifying data arrived | Middleware MCP server (OAuth in the agent client; no key) |
+- **Check the live docs** via https://docs.middleware.io/llms.txt (index of `.md` pages) or `llms-full.txt` (grep only). Other skills rely on this. Rules for docs vs. skill references are in `references/docs.md`.
 
 ## Workflow
 

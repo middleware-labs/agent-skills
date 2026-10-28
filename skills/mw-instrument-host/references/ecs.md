@@ -1,6 +1,6 @@
 # AWS ECS
 
-Source: https://docs.middleware.io/integrations/aws-ecs-monitoring
+Source: https://docs.middleware.io/get-started/agent/amazon-ecs.md
 
 ## ECS on EC2
 

@@ -1,6 +1,6 @@
 # Minimum runtimes
 
-Source: https://docs.middleware.io/apm-configuration/support-matrix
+Source: https://docs.middleware.io/apm/support-metrics.md
 
 | Runtime | Minimum |
 |---|---|

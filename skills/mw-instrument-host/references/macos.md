@@ -1,6 +1,6 @@
 # macOS agent
 
-Source: https://docs.middleware.io/agent-installation/macos
+Source: https://docs.middleware.io/get-started/agent/macos.md
 
 ```bash
 MW_API_KEY="<MW_API_KEY>" MW_TARGET="https://<MW_UID>.middleware.io:443" \

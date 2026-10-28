@@ -2,7 +2,7 @@
 name: mw-instrument-lambda
 description: Instrument AWS Lambda functions with Middleware (traces and logs via OpenTelemetry Lambda layers, the OTel Go SDK, or MW.APM for .NET). Inspects the live function with the AWS CLI (runtime, architecture, region, existing layers and env), detects whether it's managed by SAM, Serverless Framework, CDK or Terraform, resolves current layer ARNs, and applies the change in IaC or — for unmanaged functions — with a merge-safe aws lambda update-function-configuration; then invokes and verifies. Use when asked to monitor, trace, instrument, or fix Middleware on Lambda / serverless functions.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,aws,lambda,serverless,opentelemetry,apm,logs,sam,serverless-framework,cdk,terraform
@@ -22,6 +22,7 @@ Instruments Lambda functions for traces and logs. No profiling on Lambda. For co
 - **Never guess layer ARNs.** Resolve them from the OpenTelemetry Lambda releases and verify each one in the function's region (`references/layers.md`).
 - Credentials come from `mw-setup` (`MW_API_KEY`, `MW_TARGET`). Lambda env vars are visible to anyone who can read the function config: say so, and offer Secrets Manager / SSM where the runtime allows it. Never print the key.
 - One function at a time unless the user asks for a batch. For batches, show the full plan first.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Inspect
 

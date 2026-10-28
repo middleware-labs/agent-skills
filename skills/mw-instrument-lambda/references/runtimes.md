@@ -1,6 +1,6 @@
 # Per-runtime setup
 
-Source: Middleware AWS Lambda docs (https://docs.middleware.io/cloudplatform/aws-lambda; revamped version at stage-docs.middleware.io), checked 2026-10-28.
+Source: Middleware AWS Lambda docs (https://docs.middleware.io/get-started/agent/aws-lambda.md; revamped version at stage-docs.middleware.io), checked 2026-10-28.
 
 Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On Lambda, Node.js, Java and Go send the key as the **resource attribute `mw.account_key`**, not a header. The Collector sends it as the `authorization` header.
 

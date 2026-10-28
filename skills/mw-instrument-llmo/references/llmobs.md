@@ -1,6 +1,6 @@
 # LLM Observability SDKs
 
-Sources: https://docs.middleware.io/llm-observability/overview · /llm-observability/middleware-llmobs/python · /llm-observability/traceloop/python · /llm-observability/traceloop/nodejs · /llm-observability/openlit/python
+Sources: https://docs.middleware.io/features/llm.md · /llm-observability/middleware-llmobs/python · /llm-observability/traceloop/python · /llm-observability/traceloop/nodejs · /llm-observability/openlit/python
 
 All exports are OTLP/HTTP to `https://<MW_UID>.middleware.io:443` with headers `Authorization=<MW_API_KEY>` and `X-Trace-Source=<sdk>`.
 

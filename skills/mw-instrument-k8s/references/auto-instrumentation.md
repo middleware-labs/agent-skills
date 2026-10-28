@@ -1,6 +1,6 @@
 # Kubernetes auto-instrumentation
 
-Source: https://docs.middleware.io/agent-installation/kubernetes/kubernetes-agent (auto-instrumentation section)
+Source: https://docs.middleware.io/get-started/agent/kubernetes/kubernetes-agent.md (auto-instrumentation section)
 
 Built on the OpenTelemetry Operator. Languages: Java, Node.js, Python, .NET, Go, Ruby, Apache HTTPD, Nginx.
 Requires `mw-autoinstrumentation.enabled=true` and cert-manager (or the cert-manager-disable flags).

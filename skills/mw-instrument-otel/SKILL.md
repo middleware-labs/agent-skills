@@ -2,7 +2,7 @@
 name: mw-instrument-otel
 description: Send existing OpenTelemetry data (traces, metrics, logs) to Middleware — configure OTel SDK env vars, OpenTelemetry Collector exporters, or agents like Fluent Bit/Fluentd to export OTLP to the Middleware OTLP endpoint (your-uid.middleware.io:443) with the authorization header, or route through a local Middleware agent on ports 9319/9320. Use when a project already uses OpenTelemetry or an OTel Collector, when a language has no Middleware SDK, or when asked to "point OTel at Middleware", add a Middleware exporter, or ship logs via OTLP.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,opentelemetry,otlp,collector,traces,metrics,logs,fluent-bit
@@ -19,6 +19,7 @@ Use this when the app already emits OTel (or should use vanilla OTel). Don't rep
 - Keep the API key out of committed config: use `${env:MW_API_KEY}` in Collector YAML, Secrets in K8s, and env vars for SDKs.
 - Change one thing: the exporter destination/auth. Preserve existing processors, sampling, resource attributes and other exporters (fan-out is fine).
 - Make sure `service.name` is set on every service (`OTEL_SERVICE_NAME`).
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Workflow
 

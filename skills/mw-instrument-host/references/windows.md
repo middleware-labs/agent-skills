@@ -1,6 +1,6 @@
 # Windows agent
 
-Source: https://docs.middleware.io/agent-installation/windows
+Source: https://docs.middleware.io/get-started/agent/windows.md
 Installer is an **EXE** (not MSI): `https://github.com/middleware-labs/mw-agent/releases/latest/download/mw-windows-agent-setup.exe`
 
 ## Silent install (elevated PowerShell)

@@ -2,7 +2,7 @@
 name: mw-instrument-rum
 description: Add Middleware Real User Monitoring (RUM) to browser and mobile apps — the Middleware browser SDK (CDN script + Middleware.track) for React, Next.js App/Pages Router, Angular, Vue, Svelte, vanilla HTML and SPAs; Android (io.github.middleware-labs:android-sdk), iOS (MiddlewareRum), React Native (@middleware.io/middleware-react-native) and Flutter (middleware_flutter_opentelemetry). Covers session replay privacy, user attributes, sampling, trace propagation to backends, CSP, and source-map / ProGuard / dSYM upload. Use when asked to add, set up, repair or verify Middleware RUM, frontend monitoring, session recording, or mobile monitoring.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,rum,browser,session-replay,react,nextjs,angular,vue,android,ios,react-native,flutter,sourcemaps
@@ -23,6 +23,7 @@ Instrument only the client app(s) in scope. Backend APM is `mw-instrument-apm`.
 - Session replay is on by default (`recording: "1"`). Ask about privacy requirements; default to masking inputs for apps handling PII (`references/browser.md#privacy`).
 - Use the project's package manager / Gradle / SPM / CocoaPods; never hand-edit lockfiles.
 - Run a terminating build before reporting success. Never claim sessions arrived unless observed.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Analyze
 

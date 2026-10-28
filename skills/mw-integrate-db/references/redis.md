@@ -1,6 +1,6 @@
 # Redis / Valkey (unverified)
 
-Sources: https://docs.middleware.io/integrations/redis-integration ; bifrost `adapters/redis.ts`, `database/utils.ts` (`RedisSetting`). **Not yet tested via the API.**
+Sources: https://docs.middleware.io/integrations/redis-integration.md ; bifrost `adapters/redis.ts`, `database/utils.ts` (`RedisSetting`). **Not yet tested via the API.**
 
 Config key: `redis_config`.
 

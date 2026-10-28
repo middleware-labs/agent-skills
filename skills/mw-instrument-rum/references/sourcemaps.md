@@ -1,6 +1,6 @@
 # Source maps, ProGuard/R8 mappings, dSYMs
 
-Source: https://docs.middleware.io/rum/error-debugging · /rum/android-sourcemaps · npm `@middleware.io/sourcemap-uploader`
+Source: https://docs.middleware.io/features/rum.md · /rum/android-sourcemaps · npm `@middleware.io/sourcemap-uploader`
 Uses the **RUM account key**, not the ingestion API key.
 
 ## Web

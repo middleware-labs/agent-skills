@@ -1,6 +1,6 @@
 # Linux host agent
 
-Source: https://docs.middleware.io/agent-installation/linux · scripts at install.middleware.io · repo github.com/middleware-labs/mw-agent
+Source: https://docs.middleware.io/get-started/agent/linux.md · scripts at install.middleware.io · repo github.com/middleware-labs/mw-agent
 
 ## Install
 

@@ -40,7 +40,7 @@ spec:
     automated: { prune: true, selfHeal: true }
     syncOptions: [CreateNamespace=true, ServerSideApply=true]
 ```
-(See also https://docs.middleware.io/agent-installation/kubernetes/kubernetes-argocd.)
+(See also https://docs.middleware.io/get-started/agent/kubernetes/kubernetes-argocd.md.)
 
 ## Flux HelmRelease
 

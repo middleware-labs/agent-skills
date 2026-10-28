@@ -1,6 +1,6 @@
 # MySQL / MariaDB (unverified)
 
-Sources: https://docs.middleware.io/integrations/mysql-integration ; bifrost `adapters/mysql.ts`. **Not yet tested via the API.** Confirm with a read-back and agent verification.
+Sources: https://docs.middleware.io/integrations/mysql-integration.md ; bifrost `adapters/mysql.ts`. **Not yet tested via the API.** Confirm with a read-back and agent verification.
 
 Config key: `mysql_config`.
 

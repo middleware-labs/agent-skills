@@ -1,6 +1,6 @@
 # Python
 
-Source: https://docs.middleware.io/apm-configuration/python
+Source: https://docs.middleware.io/get-started/apm/python.md
 ⚠️ The package is `middleware-io`. Older docs/mirrors mention `middleware-apm`, `middleware.ini` and `middleware-apm run` — those are outdated; don't use them.
 
 ## Install
