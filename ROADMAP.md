@@ -9,7 +9,8 @@ This document captures the current state of the Middleware agent skills, the des
 | `mw-setup` | ✅ Done |
 | `mw-instrument-host` | ✅ Done (Linux, Docker, Windows, macOS, ECS) |
 | `mw-instrument-k8s` | ✅ Done (Helm v3 chart, auto-instrumentation, GitOps) |
-| `mw-instrument-apm` | ✅ Done (Node, NestJS, Next.js, Python, Java, Go, .NET, PHP, Ruby, Lambda) |
+| `mw-instrument-apm` | ✅ Done (Node, NestJS, Next.js, Python, Java, Go, .NET, PHP, Ruby) |
+| `mw-instrument-lambda` | ✅ Done: Node.js and Python verified end-to-end on real AWS + Middleware (CLI path, with and without Collector). Java, Go, .NET and IaC paths written but untested; see section 1b |
 | `mw-instrument-otel` | ✅ Done |
 | `mw-instrument-rum` | ✅ Done (Browser, Android, iOS, React Native, Flutter, source maps) |
 | `mw-instrument-llmo` | ✅ Done |
@@ -61,6 +62,30 @@ Principles:
 - Use MCP tools to check what Middleware actually received.
 
 Most of the raw material is already in the existing references; the "Troubleshooting" sections and the research notes below are the starting point.
+
+### 1b. Finish `mw-instrument-lambda`
+
+Verified so far (2026-10-28, eu-north-1, arm64): Node.js 22 and Python 3.13, CLI path, with and without the Collector. Traces, trace-linked Python logs and the negative wrong-key check were confirmed in Middleware via MCP.
+
+**Test the remaining paths.** Throwaway function → apply the skill → invoke → MCP check → wrong-key negative test → delete:
+- [ ] Java (`opentelemetry-javaagent` layer), with and without the Collector for logs. Check cold-start impact and whether `Timeout` needs raising.
+- [ ] Go (`provided.al2023`, `otellambda` + OTLP/HTTP direct).
+- [ ] .NET: `MW.APM` on a plain handler-style Lambda. The docs only show ASP.NET Core; find the right init point or document a plain OTel .NET SDK alternative.
+- [ ] IaC paths: SAM, Serverless Framework, CDK (`NodejsFunction` bundling hook for `lambda-config.js`) and Terraform. So far only the snippets are written.
+- [ ] Container-image functions (copy layer contents into `/opt`).
+- [ ] x86_64 (`amd64` collector layer). Only arm64 was tested.
+- [ ] The "no source" path (collector config from `s3://`).
+
+**Skill gaps.**
+- [ ] Go and .NET: add the Collector-recommended option (SDK → `localhost:9320` → `collector.yaml` → Middleware) to match the other runtimes. Upstream publishes no Go or .NET language layer, only the Collector.
+- [ ] Ruby: upstream has an `opentelemetry-ruby` layer, but neither the skill nor the Middleware docs cover it. Add it (unverified until tested) and tell the docs team.
+- [ ] Node.js trace-linked logs: document or automate an OTel logs bridge (`@opentelemetry/instrumentation-pino` / `-winston` + OTLP log exporter). `console.log` via the Telemetry API has no `traceId`.
+- [ ] Python: test adding `opentelemetry-instrumentation-httpx` / `-urllib` / `-urllib3` to the package for functions that use them (not bundled in the layer).
+- [ ] Node.js 24: the OTel Node wrapper triggers AWS's "callback-based handlers removed" warning. Verify an instrumented function actually works on `nodejs24.x`.
+- [ ] Secrets: the key currently lives in plain Lambda env vars. Evaluate Secrets Manager / SSM for the collector (e.g. a `${secretsmanager:…}` provider, if the layer supports it) and the SDK paths.
+- [ ] Python direct export: check whether app logs can be lost at freeze (batch log processor), as with spans.
+- [ ] Troubleshooting table: several log-line wordings (wrapper not found, layer incompatibility, `Cannot find module`) were written from docs, not observed. Confirm or adjust.
+- [ ] Batch mode (several functions at once): written as guidance only.
 
 ### 2. Slim references to "facts cards"
 
@@ -135,6 +160,7 @@ The skills follow the open [Agent Skills](https://agentskills.io) format (`SKILL
 - `mw-synthetics`: create/update HTTP and browser checks via MCP (`create_synthetic_check`, `create_browser_test`).
 - `mw-dashboards` / `mw-alerts`: dashboards, widgets, alert rules via MCP or the public API.
 - `mw-logs`: log pipelines, custom log paths, parsing (currently split across host/otel skills).
+- `mw-setup/references/mcp.md`: check tool names against the live Middleware MCP server (connected 2026-10-28; actual tools include `query`, `get_resources`, `get_metrics`, `list_errors`, `get_error_details`, `list_rum_*`, synthetics and dashboards/widgets). Also document the workflow `get_resources` → `get_metrics(filters/metrics)` → `query`.
 - `mw-integrate-db`: verify MySQL, MongoDB and Redis via the API; add SQL Server, Oracle, ClickHouse, Kafka and other integrations; Kubernetes-agent integrations (`config.k8s`).
 - Cloud integrations (AWS/Azure/GCP), `mw-onboarding` orchestrator that chains setup → host/k8s → APM → RUM.
 
@@ -165,6 +191,7 @@ These are used or mentioned in the skills but could not be confirmed from public
 - Node.js docs: `track.errorRecord(e)` should be `tracker.errorRecord(e)`.
 - Java docs: `-Dotel.traces.sampler=otel.traces.sampler=parentbased_traceidratio` should be `-Dotel.traces.sampler=parentbased_traceidratio`.
 - Lambda Java docs: `mw.account_key==<KEY>` has a double `=`.
+- Lambda Python docs (revamp): the `collector.yaml` example has no `metrics` pipeline, so the SDK logs `Failed to export metrics batch code: 404` on every invocation. The `logger.propagate = False` advice also breaks trace-linked OTel logs; recommend `telemetryapi: types: [platform]` + `OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true` instead (verified 2026-10-28).
 - Node.js docs say Node 18.17.1+, but the npm `engines` field says `^18.19.0 || >=20.6.0`.
 - Python docs say 3.9+, but PyPI `requires_python` says `>=3.8`.
 - RUM docs disagree on the default propagation format (b3 vs W3C).
