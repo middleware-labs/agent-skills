@@ -41,7 +41,9 @@ This document captures the current state of the Middleware agent skills, the des
 
 ### 1. Write `mw-troubleshoot`
 
-This is the second half of the original goal ("instrument … and then troubleshoot for any configurations"). It should be the most detailed skill, because these symptom → fix tables don't exist in one place in the docs.
+This is the second half of the original goal ("instrument … and then troubleshoot for any configurations").
+
+**Unblocked (2026-10-29):** the revamped docs are live with `llms.txt`, `.md` pages and `llms-full.txt`. There are no standalone troubleshooting pages, but **~100 pages have a "Troubleshooting" section**. Plan: the skill owns the triage workflow and read-only diagnostics. For causes and fixes it greps `llms-full.txt` for the exact error string or symptom and routes to the page's Troubleshooting section, instead of vendoring tables. It keeps only verified traps the docs lack (e.g. from the Lambda E2E tests). See `mw-setup/references/docs.md`.
 
 Proposed structure:
 ```
@@ -89,6 +91,8 @@ Verified so far (2026-10-28, eu-north-1, arm64): Node.js 22 and Python 3.13, CLI
 
 ### 2. Slim references to "facts cards"
 
+Now that skills fetch the live `.md` page first (rule added to every SKILL.md), references can shrink to: the `Source:` page URL, items **verified** in tests, known doc errors/traps, and agent-only workflow. Cut content that only restates the docs. Do it skill by skill, re-testing each.
+
 Current size is ~4k words in SKILL.md files and ~7k in references. Target ~3k words of references. Keep:
 - exact install commands, package names, imports, option keys, env vars, ports, paths;
 - known traps and doc typos;
@@ -110,7 +114,7 @@ Cut generic explanation that agents already know (e.g. most of `mw-instrument-k8
 
 ### 4. Middleware-side docs improvements (lets references shrink over time)
 
-- [ ] Publish Markdown versions of the docs pages and a current `llms.txt` on docs.middleware.io.
+- [x] Publish Markdown versions of the docs pages and a current `llms.txt` on docs.middleware.io. Live 2026-10-29: `llms.txt` (288 pages), `<page>.md`, `llms-full.txt`. Skills use them via `mw-setup/references/docs.md`; CI (`docs-links` job, weekly too) checks every cited page is still listed.
 - [ ] Retire or redirect the stale mw-docs.middleware.io mirror.
 - [ ] Fix the doc typos listed below.
 - [ ] Add a docs-search tool to the Middleware MCP server, similar to Datadog's `dd-docs`.
@@ -183,7 +187,7 @@ These are used or mentioned in the skills but could not be confirmed from public
 | Browser RUM: Angular / Vue / Nuxt / SvelteKit snippets | `mw-instrument-rum/references/browser.md` | Written from generic patterns (script in HTML shell). |
 | RUM trace propagation default (`b3` vs W3C, "every origin") | `mw-instrument-rum` | Docs pages conflict. |
 | Next.js 15+ config keys (`serverExternalPackages`) | `mw-instrument-apm/references/nextjs.md` | Docs target Next 13/14. |
-| Fluent Bit `opentelemetry` output to Middleware | `mw-instrument-otel/references/otlp.md` | Generic Fluent Bit config; not from Middleware docs. |
+| Fluent Bit `opentelemetry` output to Middleware | `mw-instrument-otel/references/otlp.md` | Docs now have a Fluent Bit page (`get-started/agent/fluent-bit.md`); the skill points to it. Fold its exact config into the reference. |
 | OpenInference content-hiding env vars | `mw-instrument-llmo` | From OpenInference, not Middleware docs. |
 
 ## Docs issues found (report to docs team)

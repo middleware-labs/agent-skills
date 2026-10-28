@@ -1,6 +1,6 @@
 # .NET
 
-Source: https://docs.middleware.io/apm-configuration/dotnet · .NET 6+ (or .NET Framework 4.6.2+ on IIS). App logs not auto-captured.
+Source: https://docs.middleware.io/get-started/apm/dotnet.md · .NET 6+ (or .NET Framework 4.6.2+ on IIS). App logs not auto-captured.
 
 ## Host mode — Linux (auto-instrumentation, no code changes)
 

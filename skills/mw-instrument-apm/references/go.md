@@ -1,6 +1,6 @@
 # Go
 
-Source: https://docs.middleware.io/apm-configuration/go · Repo: https://github.com/middleware-labs/golang-apm (the older `agent-apm-go` repo is stale). Go 1.17+.
+Source: https://docs.middleware.io/get-started/apm/go.md · Repo: https://github.com/middleware-labs/golang-apm (the older `agent-apm-go` repo is stale). Go 1.17+.
 
 ## Install
 

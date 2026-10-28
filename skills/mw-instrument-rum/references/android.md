@@ -1,6 +1,6 @@
 # Android RUM
 
-Source: https://docs.middleware.io/rum/rum-android-mobile · SDK 3.2.0 · minSdk 21, compileSdk 35+, Kotlin Gradle Plugin 2.0+, core library desugaring required.
+Source: https://docs.middleware.io/get-started/rum/android.md · SDK 3.2.0 · minSdk 21, compileSdk 35+, Kotlin Gradle Plugin 2.0+, core library desugaring required.
 
 ## Gradle (app module)
 

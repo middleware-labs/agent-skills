@@ -1,6 +1,6 @@
 # Next.js / Vercel
 
-Sources: https://docs.middleware.io/apm-configuration/next-js · https://docs.middleware.io/apm-configuration/vercel-integration
+Sources: https://docs.middleware.io/get-started/apm/nextjs.md · https://docs.middleware.io/get-started/apm/vercel-integration.md
 
 Requires Next.js 13.4+. Server-side only — for browser telemetry use `mw-instrument-rum`.
 

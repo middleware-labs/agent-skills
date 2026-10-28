@@ -64,6 +64,10 @@ claude   # or codex, cursor, …
 
 Or keep them in `~/.config/middleware/credentials.env` (`KEY=value` lines, `chmod 600`). Pasting a key into chat works as a fallback; the skill saves it to that file, and you should rotate the key afterwards. In CI, set the env vars; skills don't prompt there.
 
+## Live docs
+
+Skills check the current Middleware docs before applying a setup, using https://docs.middleware.io/llms.txt and the `.md` version of each page. Each reference file names its source page. Facts verified in end-to-end tests take precedence when the docs differ. CI checks weekly that every cited page still exists.
+
 ## Recommended: connect the Middleware MCP server
 
 Skills use it to confirm hosts, services and RUM sessions are actually reporting.

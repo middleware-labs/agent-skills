@@ -1,6 +1,6 @@
 # OTLP to Middleware
 
-Source: https://docs.middleware.io/open-telemetry/otel-getting-started · https://docs.middleware.io/open-telemetry/otel-sdk-logs
+Source: https://docs.middleware.io/get-started/agent/otel.md · https://docs.middleware.io/get-started/agent/otel-logs.md
 
 ## Endpoints
 
@@ -62,7 +62,7 @@ service:
 
 ## Other log shippers
 
-Fluent Bit, Fluentd, Logstash, Heroku/Cycle.io drains, Windows Event Logs and Lambda logs have dedicated pages under https://docs.middleware.io/third-party-agents/ and /integrations/. For Fluent Bit, the simplest path is its `opentelemetry` output plugin:
+Fluent Bit, Fluentd, Logstash, Datadog dual shipping and other log shippers have dedicated pages. Find them in the **Third Party Agents** section of https://docs.middleware.io/llms.txt (e.g. https://docs.middleware.io/get-started/agent/fluent-bit.md, https://docs.middleware.io/get-started/agent/fluentd.md). Fetch the page before configuring a shipper; the snippet below is a generic fallback using Fluent Bit's `opentelemetry` output plugin:
 ```ini
 [OUTPUT]
     Name        opentelemetry

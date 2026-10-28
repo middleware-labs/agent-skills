@@ -2,7 +2,7 @@
 name: mw-instrument-llmo
 description: Instrument LLM and AI-agent applications with Middleware LLM Observability — the first-party Python SDK middleware-llmobs (OpenInference instrumentors for OpenAI, Anthropic, LangChain, LlamaIndex, Bedrock, etc.), or Traceloop/OpenLLMetry and OpenLIT for Node.js, Next.js, Go, Ruby — capturing prompts, completions, token usage, cost, latency, sessions, users, RAG steps and evaluations. Use when asked to monitor, trace, or debug LLM calls, AI agents, RAG pipelines, or GenAI apps in Middleware.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,llm-observability,llmobs,genai,openai,anthropic,langchain,openinference,traceloop,openlit
@@ -19,6 +19,7 @@ metadata:
 - Prompts and completions are captured by default. Ask whether prompts contain PII/secrets; if so, discuss disabling content capture (OpenInference: `OPENINFERENCE_HIDE_INPUTS=true` / `OPENINFERENCE_HIDE_OUTPUTS=true`; Traceloop: `TRACELOOP_TRACE_CONTENT=false`) before enabling in production.
 - Keep `MW_API_KEY` in env/secrets, never in code.
 - If the service already has Middleware APM, LLM spans join the same traces — don't add a second, competing global TracerProvider. Check for an existing provider and use the SDK's `set_global_*` options accordingly.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Workflow
 

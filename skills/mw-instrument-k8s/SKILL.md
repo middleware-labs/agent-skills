@@ -2,7 +2,7 @@
 name: mw-instrument-k8s
 description: Install, upgrade and configure the Middleware Kubernetes agent (Helm chart mw-kube-agent-v3 in namespace mw-agent-ns) and Middleware auto-instrumentation (OpenTelemetry Operator, cert-manager, per-workload inject annotations) on EKS, GKE, AKS, OpenShift, k3s, kind or any cluster; generate Helm values, Argo CD/Flux manifests or Terraform; and wire application pods to the agent service. Use when asked to monitor a Kubernetes cluster with Middleware, enable APM auto-instrumentation for pods, or fix/upgrade an existing mw-kube-agent install.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,kubernetes,helm,k8s,auto-instrumentation,opentelemetry-operator,eks,gke,aks
@@ -17,6 +17,7 @@ metadata:
 - Copy chart names, value keys, annotations and resource names exactly from `references/`. Don't invent Helm values — if you need one that isn't documented here, read the chart: `helm show values middleware-labs/mw-kube-agent-v3`.
 - Never put the API key in a committed `values.yaml`. Use `--set` from an env var, a Kubernetes Secret, or the GitOps tool's secret mechanism (SOPS, External Secrets, Sealed Secrets).
 - Only one Middleware agent install per cluster. Don't also install the Linux host agent on the nodes.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Analyze
 

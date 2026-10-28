@@ -1,6 +1,6 @@
 # Docker host agent
 
-Source: https://docs.middleware.io/agent-installation/docker · image `ghcr.io/middleware-labs/mw-host-agent:master`
+Source: https://docs.middleware.io/get-started/agent/docker.md · image `ghcr.io/middleware-labs/mw-host-agent:master`
 
 ## Install script (recommended)
 

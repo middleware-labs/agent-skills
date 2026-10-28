@@ -1,6 +1,6 @@
 # Java
 
-Source: https://docs.middleware.io/apm-configuration/java
+Source: https://docs.middleware.io/get-started/apm/java.md
 Agent releases: https://github.com/middleware-labs/opentelemetry-java-instrumentation/releases (assets `middleware-javaagent-<version>.jar`, `middleware-javaagent.jar`). Java 8+.
 
 ## Get the agent

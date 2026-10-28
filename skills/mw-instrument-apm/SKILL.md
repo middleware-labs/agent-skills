@@ -2,7 +2,7 @@
 name: mw-instrument-apm
 description: Instrument backend applications with Middleware APM (traces, metrics, logs, profiling). Detects language, framework, runtime version, package manager, entrypoint and deployment shape (bare host, Docker, Kubernetes, Vercel; AWS Lambda is handled by mw-instrument-lambda), picks host-agent mode or agentless mode, and adds the official Middleware SDK for Node.js, NestJS, Next.js, Python, Java, Go, .NET, PHP or Ruby. Use when asked to add, set up, instrument, fix, or verify Middleware APM, distributed tracing, or application monitoring in a codebase.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,apm,tracing,opentelemetry,nodejs,python,java,go,dotnet,php,ruby,nextjs
@@ -24,6 +24,7 @@ Instrument only the application(s) in scope. Do not install the host agent, RUM,
 - Use the project's own package manager and lockfile (`package-lock.json`→npm, `pnpm-lock.yaml`→pnpm, `yarn.lock`→yarn, `bun.lock*`→bun, `poetry.lock`→poetry, `uv.lock`→uv, `Pipfile.lock`→pipenv). Never hand-edit lockfiles.
 - Check the runtime meets the minimum version in `references/support-matrix.md`. If it doesn't, stop and explain the options (upgrade, legacy package, or OBI/eBPF).
 - Don't write credentials, account UIDs or project details to persistent memory.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Analyze
 

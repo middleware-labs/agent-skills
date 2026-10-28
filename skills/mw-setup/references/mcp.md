@@ -1,6 +1,6 @@
 # Middleware MCP server
 
-Source: https://docs.middleware.io/opsai/mcp-server/setup
+Source: https://docs.middleware.io/features/mcp/setup.md
 
 Remote MCP (Streamable HTTP) with OAuth sign-in: `https://mcp.middleware.io/mcp`
 

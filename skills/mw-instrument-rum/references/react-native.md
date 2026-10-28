@@ -1,6 +1,6 @@
 # React Native RUM
 
-Source: https://docs.middleware.io/rum/rum-react · `@middleware.io/middleware-react-native` 2.3.0 · RN 0.68+
+Source: https://docs.middleware.io/get-started/rum/react.md · `@middleware.io/middleware-react-native` 2.3.0 · RN 0.68+
 
 ```bash
 npm install @middleware.io/middleware-react-native   # or yarn add

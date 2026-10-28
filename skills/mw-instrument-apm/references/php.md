@@ -1,6 +1,6 @@
 # PHP
 
-Source: https://docs.middleware.io/apm-configuration/php · PHP 8.0+, Composer, PECL, Debian-based Linux. No profiling. CakePHP unsupported. Host mode (agent on `localhost:9320`). Agentless mode is not documented.
+Source: https://docs.middleware.io/get-started/apm/php.md · PHP 8.0+, Composer, PECL, Debian-based Linux. No profiling. CakePHP unsupported. Host mode (agent on `localhost:9320`). Agentless mode is not documented.
 
 ## OpenTelemetry extension
 

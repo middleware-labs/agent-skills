@@ -1,6 +1,6 @@
 # Host mode vs agentless mode
 
-Source: https://docs.middleware.io/apm-configuration/troubleshooting
+Source: https://docs.middleware.io/features/apm.md
 
 | | Host mode | Agentless ("serverless") mode |
 |---|---|---|

@@ -2,7 +2,7 @@
 name: mw-integrate-db
 description: EXPERIMENTAL. Set up Middleware database integrations (PostgreSQL, MySQL/MariaDB, MongoDB, Redis/Valkey) on a Linux host that runs the Middleware host agent, without the UI. Detects databases on the host, prepares the database (stats extensions, least-privilege monitoring user), saves the integration through the Middleware agent-settings REST API, and verifies the agent starts collecting. Use when asked to monitor, integrate, connect, or fix a database integration in Middleware on a VM or bare-metal host.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,database,integration,postgresql,mysql,mariadb,mongodb,redis,linux,experimental
@@ -25,6 +25,7 @@ Configures DB integrations for the **Linux host agent** through the same REST AP
 - The public API key is not the ingestion key (see `mw-setup/references/credentials.md`). Read it from `MW_PUBLIC_API_KEY`; if the user pastes it into chat, use it and remind them to rotate it afterwards.
 - Database passwords sent through the API are stored in the Middleware host setting. Say so when asking for confirmation.
 - Never claim data arrived unless you saw it (agent metrics endpoint, MCP query, or the UI).
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Discover
 

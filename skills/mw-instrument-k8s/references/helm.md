@@ -1,6 +1,6 @@
 # Helm install: mw-kube-agent-v3
 
-Source: https://docs.middleware.io/agent-installation/kubernetes/kubernetes-agent · Helm repo `https://helm.middleware.io` · charts: github.com/middleware-labs/helm-charts
+Source: https://docs.middleware.io/get-started/agent/kubernetes/kubernetes-agent.md · Helm repo `https://helm.middleware.io` · charts: github.com/middleware-labs/helm-charts
 
 Charts in the repo: `mw-kube-agent-v3` (**current**), plus legacy `mw-kube-agent`, `mw-kube-agent-v2`, `kube-agent-chart`, and `mw-autoinstrumentation` (subchart). Use v3 for new installs.
 

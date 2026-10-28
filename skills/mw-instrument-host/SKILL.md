@@ -2,7 +2,7 @@
 name: mw-instrument-host
 description: Install, configure, upgrade or remove the Middleware infrastructure (host) agent on Linux (Debian/Ubuntu, RHEL/CentOS/Amazon Linux), Docker hosts, Windows, macOS, and AWS ECS (EC2 daemon or Fargate sidecar), including host tags, proxy settings, log collection, and OBI/eBPF service instrumentation via the mw-agent CLI. Use when asked to monitor a server, VM, EC2 instance, Docker host, Windows machine, Mac, or ECS cluster with Middleware, or to install/repair the mw-agent.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,infrastructure,host-agent,linux,docker,windows,macos,ecs,logs
@@ -19,6 +19,7 @@ Kubernetes clusters use `mw-instrument-k8s` instead — never install the host a
 - Copy install commands, paths, service names and ports exactly from `references/`. Never guess a URL under `install.middleware.io`.
 - Resolve `MW_API_KEY` and `MW_TARGET` with `mw-setup` first. Pass them as env vars on the command line or via a secrets manager — never bake them into a committed file.
 - One agent per host. Check for an existing install before installing.
+- **Check the live docs.** Before applying a setup, fetch the docs page named on the reference's `Source:` line (`.md` URL) or find it via https://docs.middleware.io/llms.txt. Items the reference marks *verified* win over the docs. Otherwise prefer the docs and tell the user about any difference. See `mw-setup/references/docs.md`.
 
 ## Phase 1: Analyze
 

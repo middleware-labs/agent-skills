@@ -1,6 +1,6 @@
 # Node.js
 
-Source: https://docs.middleware.io/apm-configuration/node-js · Repo: https://github.com/middleware-labs/node-apm
+Source: https://docs.middleware.io/get-started/apm/nodejs.md · Repo: https://github.com/middleware-labs/node-apm
 
 ## Install
 
@@ -72,7 +72,7 @@ Node 10–18.16: `npm install @middleware.io/node-apm-legacy` — same API, no p
 <a id="nestjs"></a>
 ## NestJS
 
-Source: https://docs.middleware.io/apm-configuration/nestjs
+Source: https://docs.middleware.io/get-started/apm/nestjs.md
 
 ```bash
 npm install @middleware.io/nestjs-apm
