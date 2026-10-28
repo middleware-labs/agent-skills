@@ -94,3 +94,7 @@ claude mcp add --transport http middleware https://mcp.middleware.io/mcp
 ## License
 
 MIT
+
+## Security
+
+Please report vulnerabilities privately. See [SECURITY.md](SECURITY.md).

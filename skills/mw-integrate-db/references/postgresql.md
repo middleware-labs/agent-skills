@@ -1,6 +1,6 @@
 # PostgreSQL (verified)
 
-Sources: https://docs.middleware.io/integrations/postgresql-integration.md ; bifrost `front/src/views/modules/installation-v2/pages/integrations/adapters/postgresql.ts`. Tested end-to-end on Ubuntu 24.04 / PostgreSQL 16 (2026-10-26).
+Sources: https://docs.middleware.io/integrations/postgresql-integration.md ; payload shape as saved by the Middleware UI. Tested end-to-end on Ubuntu 24.04 / PostgreSQL 16 (2026-10-26).
 
 Config key: `postgres_config`. Receiver in agent config: `postgresql/1`.
 

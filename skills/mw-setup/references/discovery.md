@@ -52,7 +52,7 @@ F=/etc/mw-agent/mw-supervisor.env
 sudo grep -E '^MW_(API_KEY|TARGET)=' "$F" | sed -E 's/^(MW_API_KEY=).*(.{4})$/\1…\2/'
 ```
 
-The target may be a non-UID subdomain (e.g. `https://sandbox.middleware.io:443` on some environments). Take it as-is from the agent rather than rebuilding it from the UID.
+The target may not follow the `<uid>.middleware.io` pattern on some environments (e.g. a dedicated or regional subdomain). Take it as-is from the agent rather than rebuilding it from the UID.
 
 ## Validate
 

@@ -1,6 +1,6 @@
 # MongoDB (unverified)
 
-Sources: https://docs.middleware.io/integrations/mongodb-integration.md ; bifrost `adapters/mongodb.ts`. **Not yet tested via the API.**
+Sources: https://docs.middleware.io/integrations/mongodb-integration.md ; payload shape as saved by the Middleware UI. **Not yet tested via the API.**
 
 Config key: `mongodb_config`.
 

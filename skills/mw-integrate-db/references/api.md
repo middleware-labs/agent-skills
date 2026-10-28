@@ -1,6 +1,6 @@
 # Agent settings API (host integrations)
 
-Source: middleware-labs/bifrost, `app/cmd/mwcore/routes/handlers/agent.handler.go` and `app/internal/store/agent/group.service.go`; spec at `https://app.middleware.io/swagger.json`. Verified against a live project on 2026-10-26 (PostgreSQL).
+Source: Middleware public API spec https://app.middleware.io/swagger.json (agent settings). Behaviour below was verified against a live project on 2026-10-26 (PostgreSQL).
 
 ## Base URL and auth
 

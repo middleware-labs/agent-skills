@@ -119,35 +119,19 @@ Cut generic explanation that agents already know (e.g. most of `mw-instrument-k8
 - [ ] Fix the doc typos listed below.
 - [ ] Add a docs-search tool to the Middleware MCP server, similar to Datadog's `dd-docs`.
 - [ ] Long term: generate `references/` facts cards from the docs source in CI so they never drift.
-- [ ] **Agent-settings API / swagger (unblocks `mw-integrate-db` leaving experimental).** Spec: `https://app.middleware.io/swagger.json`, generated from bifrost godoc.
-  1. `POST /agent/setting/{hostId}` (the save call) is missing from the spec: its godoc in `agent.handler.go` is separated from `SaveHostSpecificSetting` by `const` declarations, so swag drops it.
-  2. Document `value` (base64 of `{"linux": {"<db>_config": {...}}}`), or accept the plain `config` JSON field that the request struct already has.
-  3. Add per-integration schemas (`postgres_config`, `mysql_config`, `mongodb_config`, `redis_config`, ...) with defaults. Today `config` is `additionalProperties: true` all the way down.
-  4. Document merge semantics (keys sent under a platform replace; others are kept; `{}` removes one integration from one host).
-  5. `DELETE /agent/setting/rm/{platform}/{configKey}` removes the integration from **all hosts in the project**: add a bold warning and a per-host delete.
-  6. `GET /agent/setting/{hostId}` returns `token` (the host's ingestion key) and DB passwords: redact or mark them sensitive.
-  7. Add `operationId`s (all 73 operations lack them), rename the `AGENT PRIVATE ROUTES` tag, merge `BUILDER`/`Builder`, and give the ingestion-token routes their own security scheme or hide them.
-  8. Document `Authorization: ApiKey <key>`, the base URL `https://<project_uid>.middleware.io/api/v1`, and that hostId = agent hostname. Type `isKubeAgent`, `platform` and `configKey` with enums. Give detected-integrations a real response schema.
-  9. Trim the ~19k-character `info.description`, link `swagger.json` from the docs page as a plain link, and publish `llms.txt`.
-  10. Ideally add MCP tools (`list_detected_integrations`, `configure_db_integration`) that validate payloads server-side.
+- [ ] **Agent-settings API reference** (lets `mw-integrate-db` leave experimental): fully documented request/response schemas per integration, merge semantics, and a per-host remove operation in the public API spec (`https://app.middleware.io/swagger.json`).
+- [ ] MCP tools for integrations (e.g. list detected integrations, configure a DB integration), validated server-side.
 
 ### 5. Packaging & distribution
 
 - [ ] Add a Claude Code plugin manifest (`.claude-plugin/plugin.json` + `marketplace.json`), so users can `/plugin marketplace add middleware-labs/agent-skills`. The empty `.claude-plugin/` dir was planned for this.
-- [ ] Decide public vs private. `npx skills add middleware-labs/agent-skills` only works for people with repo access while it's private.
+- [ ] Make the repo public. Current files are ready: no secrets anywhere in history, internal references removed, `SECURITY.md` added. Older commits and PRs still contain internal notes, so publish from a fresh history rather than flipping visibility.
 - [ ] Confirm the license (MIT chosen as a placeholder, matching Datadog).
 - [ ] Add version tags/releases and a CHANGELOG; bump `metadata.version` per skill on change.
 
-### 5b. Credentials: browser sign-in (later; needs backend work)
+### 5b. Credentials: browser sign-in (later)
 
-Today `mw-setup` uses env/file discovery plus manual entry (v0.2.0). The target state is Datadog-style browser sign-in: OAuth PKCE with a loopback redirect, then fetch the target and ingestion key, then write a mode-600 file. bifrost already has DCR, PKCE and refresh. Missing:
-- [ ] Enforce OAuth scopes on API routes (granted scopes are stored but not checked today). Prerequisite for anything below.
-- [ ] Scope allowlist + new scopes `credentials:read`, `agent_settings:read`, `agent_settings:write`.
-- [ ] `GET /api/v1/onboarding/credentials` (project UID, target, ingestion key) instead of the UI-internal `/account/init`.
-- [ ] Pre-registered public client `mw-agent-skills` (PKCE, no secret, any loopback port).
-- [ ] MCP tools `get_ingestion_credentials`, `list_detected_integrations`, `configure_db_integration`, so skills can use MCP as the primary path.
-
-Estimate ~5–8 backend engineer-days for the must-haves, plus ~2 days on the skills side.
+Today `mw-setup` uses env/file discovery plus manual entry. Target: Datadog-style browser sign-in (OAuth with PKCE and a loopback redirect) that fetches the target and ingestion key and writes a mode-600 file, so users never copy keys. This depends on Middleware platform support: scoped OAuth access to credentials and agent settings, and a first-party CLI client.
 
 ### 6. Cross-agent compatibility (TODO)
 
