@@ -1,8 +1,8 @@
 ---
 name: mw-instrument-apm
-description: Instrument backend applications with Middleware APM (traces, metrics, logs, profiling). Detects language, framework, runtime version, package manager, entrypoint and deployment shape (bare host, Docker, Kubernetes, serverless/Lambda, Vercel), picks host-agent mode or agentless mode, and adds the official Middleware SDK for Node.js, NestJS, Next.js, Python, Java, Go, .NET, PHP or Ruby. Use when asked to add, set up, instrument, fix, or verify Middleware APM, distributed tracing, or application monitoring in a codebase.
+description: Instrument backend applications with Middleware APM (traces, metrics, logs, profiling). Detects language, framework, runtime version, package manager, entrypoint and deployment shape (bare host, Docker, Kubernetes, Vercel; AWS Lambda is handled by mw-instrument-lambda), picks host-agent mode or agentless mode, and adds the official Middleware SDK for Node.js, NestJS, Next.js, Python, Java, Go, .NET, PHP or Ruby. Use when asked to add, set up, instrument, fix, or verify Middleware APM, distributed tracing, or application monitoring in a codebase.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,apm,tracing,opentelemetry,nodejs,python,java,go,dotnet,php,ruby,nextjs
@@ -53,7 +53,7 @@ Open the matching reference and follow it exactly:
 | .NET / ASP.NET Core / IIS | `references/dotnet.md` |
 | PHP / Laravel / WordPress | `references/php.md` |
 | Ruby / Rails / Heroku | `references/ruby.md` |
-| AWS Lambda (any language) | `references/lambda.md` |
+| AWS Lambda (any language) | Use the `mw-instrument-lambda` skill (layers, AWS CLI, IaC) |
 
 Then wire the deployment:
 

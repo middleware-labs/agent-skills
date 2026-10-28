@@ -11,7 +11,8 @@
 | [`mw-setup`](skills/mw-setup) | Resolve & validate credentials (ingestion key, target, RUM token, API key), check connectivity, connect the Middleware MCP server |
 | [`mw-instrument-host`](skills/mw-instrument-host) | Host agent on Linux (deb/rpm), Docker, Windows, macOS, AWS ECS; log collection; OBI/eBPF via `mw-agent instrument` |
 | [`mw-instrument-k8s`](skills/mw-instrument-k8s) | Helm chart `mw-kube-agent-v3`, cert-manager, auto-instrumentation annotations, Argo CD / Flux / Terraform |
-| [`mw-instrument-apm`](skills/mw-instrument-apm) | APM SDKs for Node.js, NestJS, Next.js/Vercel, Python, Java, Go, .NET, PHP, Ruby, AWS Lambda |
+| [`mw-instrument-apm`](skills/mw-instrument-apm) | APM SDKs for Node.js, NestJS, Next.js/Vercel, Python, Java, Go, .NET, PHP, Ruby |
+| [`mw-instrument-lambda`](skills/mw-instrument-lambda) | AWS Lambda: OTel layers (Node.js, Python, Java), Go SDK, .NET; inspects the function with the AWS CLI, updates SAM/Serverless/CDK/Terraform or applies a merge-safe CLI update, then invokes and verifies |
 | [`mw-instrument-otel`](skills/mw-instrument-otel) | Point existing OpenTelemetry SDKs / Collectors / Fluent Bit at Middleware |
 | [`mw-instrument-rum`](skills/mw-instrument-rum) | Browser RUM (React, Next.js, Angular, Vue, Svelte, HTML), Android, iOS, React Native, Flutter, source maps |
 | [`mw-instrument-llmo`](skills/mw-instrument-llmo) | LLM Observability via `middleware-llmobs`, Traceloop, OpenLIT |

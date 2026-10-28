@@ -9,7 +9,8 @@ This document captures the current state of the Middleware agent skills, the des
 | `mw-setup` | ✅ Done |
 | `mw-instrument-host` | ✅ Done (Linux, Docker, Windows, macOS, ECS) |
 | `mw-instrument-k8s` | ✅ Done (Helm v3 chart, auto-instrumentation, GitOps) |
-| `mw-instrument-apm` | ✅ Done (Node, NestJS, Next.js, Python, Java, Go, .NET, PHP, Ruby, Lambda) |
+| `mw-instrument-apm` | ✅ Done (Node, NestJS, Next.js, Python, Java, Go, .NET, PHP, Ruby) |
+| `mw-instrument-lambda` | ✅ Done, not yet tested end-to-end (OTel layers, Go SDK, .NET; AWS CLI + SAM/Serverless/CDK/Terraform) |
 | `mw-instrument-otel` | ✅ Done |
 | `mw-instrument-rum` | ✅ Done (Browser, Android, iOS, React Native, Flutter, source maps) |
 | `mw-instrument-llmo` | ✅ Done |

@@ -1,0 +1,147 @@
+# Per-runtime setup
+
+Source: Middleware AWS Lambda docs (https://docs.middleware.io/cloudplatform/aws-lambda; revamped version at stage-docs.middleware.io), checked 2026-10-28.
+
+Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On Lambda, Node.js, Java and Go send the key as the **resource attribute `mw.account_key`**, not a header. The Collector sends it as the `authorization` header.
+
+## Node.js
+
+Layers: Collector (first), then Node.js. Env:
+```
+AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+NODE_OPTIONS=--require ./lambda-config.js          # ESM: --import ./lambda-config.mjs
+OTEL_SERVICE_NAME=<service-name>
+OTEL_EXPORTER_OTLP_ENDPOINT=https://<MW_UID>.middleware.io:443
+OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<MW_API_KEY>
+OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION=true
+OTEL_PROPAGATORS=tracecontext
+```
+`lambda-config.js` at the package root (exports spans as they finish, so none are lost when Lambda freezes):
+```js
+const { SimpleSpanProcessor } = require("@opentelemetry/sdk-trace-base");
+const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-proto");
+global.configureTracerProvider = (tracerProvider) => {
+  tracerProvider.addSpanProcessor(new SimpleSpanProcessor(new OTLPTraceExporter()));
+};
+```
+Add `@opentelemetry/sdk-trace-base` and `@opentelemetry/exporter-trace-otlp-proto` to the package (project package manager). For function logs, also add `collector.yaml` from [Logs](#logs-any-runtime) and `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml`.
+
+## Python
+
+Layers: Collector (first), then Python. Env:
+```
+AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-instrument
+OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml
+OPENTELEMETRY_EXTENSION_LOG_LEVEL=info
+OTEL_BSP_SCHEDULE_DELAY=500
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:9320
+OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION=true
+OTEL_PROPAGATORS=tracecontext
+OTEL_SERVICE_NAME=<service-name>
+MW_API_KEY=<MW_API_KEY>                            # read by collector.yaml via ${env:MW_API_KEY}
+```
+`collector.yaml` at the package root:
+```yaml
+receivers:
+  telemetryapi: {}
+  otlp:
+    protocols:
+      grpc: { endpoint: "localhost:9319" }
+      http: { endpoint: "localhost:9320" }
+processors:
+  resource:
+    attributes:
+      - { key: service.name, value: "<service-name>", action: upsert }
+  decouple: {}
+exporters:
+  otlp:
+    endpoint: "https://<MW_UID>.middleware.io:443"
+    headers:
+      authorization: ${env:MW_API_KEY}
+service:
+  pipelines:
+    traces: { receivers: [telemetryapi, otlp], processors: [resource, decouple], exporters: [otlp] }
+    logs:   { receivers: [telemetryapi, otlp], processors: [resource, decouple], exporters: [otlp] }
+```
+- `decouple` must be the **last** processor.
+- For app logs via OTel set `OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true` (and `OTEL_LOGS_EXPORTER=otlp` if needed). Set `logger.propagate = False` on custom loggers to avoid duplicates.
+- Optionally set the function log format to JSON (`aws lambda update-function-configuration --logging-config LogFormat=JSON`, or `LoggingConfig` in IaC) for structured logs.
+- Collector builds on contrib ≥ v0.145.0 rename the gRPC exporter `otlp_grpc`. `otlp` still works as a deprecated alias, so rename it if the logs warn.
+
+## Java
+
+Layer: Java agent (`opentelemetry-javaagent-*`). Env:
+```
+AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
+OTEL_EXPORTER_OTLP_ENDPOINT=https://<MW_UID>.middleware.io:443
+OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION=true
+OTEL_PROPAGATORS=tracecontext
+OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<MW_API_KEY>
+OTEL_SERVICE_NAME=<service-name>
+```
+Use a single `=` after `mw.account_key`; older docs showed `==`. Custom spans: add `io.opentelemetry:opentelemetry-api` matching the layer's agent version. The agent adds cold-start latency, so raise `Timeout` if it's tight.
+
+## Go (no layer)
+
+```bash
+go get github.com/aws/aws-lambda-go/lambda \
+  go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda \
+  go.opentelemetry.io/otel go.opentelemetry.io/otel/sdk \
+  go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp
+```
+```go
+exp, err := otlptracehttp.New(ctx, otlptracehttp.WithEndpointURL("https://<MW_UID>.middleware.io:443/v1/traces"))
+res := resource.NewSchemaless(
+    attribute.String("service.name", "<service-name>"),
+    attribute.String("mw.account_key", os.Getenv("MW_API_KEY")),
+    attribute.String("library.language", "go"),
+)
+tp := sdktrace.NewTracerProvider(sdktrace.WithBatcher(exp), sdktrace.WithResource(res))
+otel.SetTracerProvider(tp)
+lambda.Start(otellambda.InstrumentHandler(handler, otellambda.WithFlusher(tp)))
+```
+`WithEndpointURL` needs the full `/v1/traces` URL. `WithFlusher` is required, or spans are lost at freeze. Set `MW_API_KEY` as a function env var; don't hard-code it.
+
+## .NET
+
+`dotnet add package MW.APM`, then call `builder.Services.ConfigureMWInstrumentation(configuration)` at startup (see `mw-instrument-apm/references/dotnet.md`). Config keys `MW:ApiKey`, `MW:TargetURL` (`<MW_UID>.middleware.io:443`), `MW:ServiceName`, from env vars (`MW__ApiKey` …) rather than a committed `appsettings.json`. The docs' example is ASP.NET Core minimal hosting. Plain handler-style Lambdas may need a different init point, so tell the user this path is less proven.
+
+## Logs (any runtime)
+
+Collector layer + `collector.yaml` + `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml`. The extension subscribes to the Lambda Telemetry API (stdout/stderr + platform logs):
+```yaml
+receivers:
+  telemetryapi:
+processors:
+  batch:
+  resource:
+    attributes:
+      - { key: mw.account_key, value: ${env:MW_API_KEY}, action: upsert }
+      - { key: service.name, value: "<service-name>", action: upsert }
+      - { key: deployment.environment, value: "<env>", action: upsert }
+  decouple:
+exporters:
+  otlp:
+    endpoint: https://<MW_UID>.middleware.io:443
+    headers:
+      authorization: ${env:MW_API_KEY}
+service:
+  pipelines:
+    logs: { receivers: [telemetryapi], processors: [resource, batch, decouple], exporters: [otlp] }
+```
+- Keep `service.name`: Middleware rejects logs without a resource identity.
+- Logs are delayed. Buffered logs go out at the start of the next invocation or at shutdown.
+- `OPENTELEMETRY_COLLECTOR_CONFIG_URI` also accepts `s3://` and `https://` (adds cold-start latency), which is useful when you can't repackage (see `deploy.md#no-source`).
+
+## Container images
+
+`PackageType: Image` can't use layers. Copy the layer contents into the image, or use the language SDK directly:
+- Download the layer zip with `aws lambda get-layer-version-by-arn --arn <arn> --query Content.Location --output text`, then `curl` it.
+- Unzip it into `/opt` in the Dockerfile.
+- Set the same env vars.
+
+Ask the user before changing the Dockerfile.
+
+## X-Ray (optional)
+
+Active tracing can stay on. For W3C propagation keep `OTEL_PROPAGATORS=tracecontext`. If upstream services rely on X-Ray headers, use compatible propagators (`tracecontext,xray`) instead of disabling AWS context propagation.
