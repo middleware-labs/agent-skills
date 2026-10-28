@@ -51,7 +51,9 @@ receivers:
 processors:
   resource:
     attributes:
-      - { key: service.name, value: "<service-name>", action: upsert }
+      - key: service.name
+        value: "<service-name>"
+        action: upsert
   decouple: {}
 exporters:
   otlp:
@@ -116,9 +118,15 @@ processors:
   batch:
   resource:
     attributes:
-      - { key: mw.account_key, value: ${env:MW_API_KEY}, action: upsert }
-      - { key: service.name, value: "<service-name>", action: upsert }
-      - { key: deployment.environment, value: "<env>", action: upsert }
+      - key: mw.account_key
+        value: "${env:MW_API_KEY}"
+        action: upsert
+      - key: service.name
+        value: "<service-name>"
+        action: upsert
+      - key: deployment.environment
+        value: "<env>"
+        action: upsert
   decouple:
 exporters:
   otlp:
@@ -130,6 +138,7 @@ service:
     logs: { receivers: [telemetryapi], processors: [resource, batch, decouple], exporters: [otlp] }
 ```
 - Keep `service.name`: Middleware rejects logs without a resource identity.
+- **Never put `${env:…}` inside an inline `{ … }` YAML mapping.** The braces break parsing (`yaml: … did not find expected ',' or '}'`) and the collector won't start (`Extension.InitError`). Use block style as above, or quote the value.
 - Logs are delayed. Buffered logs go out at the start of the next invocation or at shutdown.
 - `OPENTELEMETRY_COLLECTOR_CONFIG_URI` also accepts `s3://` and `https://` (adds cold-start latency), which is useful when you can't repackage (see `deploy.md#no-source`).
 

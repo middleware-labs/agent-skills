@@ -72,7 +72,7 @@ Wait for the user's OK.
 ## Phase 4: Verify & report
 
 1. With confirmation, invoke once: `aws lambda invoke --function-name <name> --payload '{}' --cli-binary-format raw-in-base64-out /tmp/out.json`. Use a realistic test event if the handler needs one, and ask the user for it.
-2. Check the CloudWatch logs for wrapper, exporter or collector errors: `aws logs tail /aws/lambda/<name> --since 10m`. See `references/troubleshooting.md`.
+2. Check the CloudWatch logs for wrapper, exporter or collector errors: `aws logs tail /aws/lambda/<name> --since 10m`. `Extension.InitError` means the collector didn't start: set `OPENTELEMETRY_EXTENSION_LOG_LEVEL=debug` to see why. See `references/troubleshooting.md`.
 3. Logs from the Collector `decouple` processor are sent on the *next* invocation, so invoke twice when verifying logs.
 4. If the Middleware MCP server is connected, `query` traces for `service.name=<OTEL_SERVICE_NAME>` and logs for that service. Otherwise point to APM → Services and Logs. Never claim data arrived unless you saw it.
 5. Report:
