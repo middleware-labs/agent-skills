@@ -4,6 +4,17 @@ Source: Middleware AWS Lambda docs (https://docs.middleware.io/cloudplatform/aws
 
 Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On Lambda, Node.js, Java and Go send the key as the **resource attribute `mw.account_key`**, not a header. The Collector sends it as the `authorization` header.
 
+## Collector or direct export?
+
+| | With Collector layer (recommended) | Direct export (opt-out) |
+|---|---|---|
+| Lambda stdout/stderr + platform logs | ✅ via the `telemetryapi` receiver | ❌ (CloudWatch only); Python can still send app logs over OTLP |
+| Export off the request path | ✅ `decouple` processor | ❌ the SDK exports during the invocation |
+| Cold start | Slower (Node.js test: ~815 ms init) | Faster (Node.js test: ~440 ms init) |
+| Layers used | 2 of 5 | 1 of 5 |
+| Failure mode | A bad `collector.yaml` fails **every invocation** (`Extension.InitError`) | Export errors are logged; invocations still succeed |
+| Where the key goes | `MW_API_KEY` env var, read by `collector.yaml` (`${env:MW_API_KEY}`) | `OTEL_RESOURCE_ATTRIBUTES=mw.account_key=…` and/or `OTEL_EXPORTER_OTLP_HEADERS=authorization=…` |
+
 ## Node.js
 
 Layers: Collector (first), then Node.js. Env:
@@ -24,7 +35,11 @@ global.configureTracerProvider = (tracerProvider) => {
   tracerProvider.addSpanProcessor(new SimpleSpanProcessor(new OTLPTraceExporter()));
 };
 ```
-Add `@opentelemetry/sdk-trace-base` and `@opentelemetry/exporter-trace-otlp-proto` to the package (project package manager). For function logs, also add `collector.yaml` from [Logs](#logs-any-runtime) and `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml`.
+Add `@opentelemetry/sdk-trace-base` and `@opentelemetry/exporter-trace-otlp-proto` to the package (project package manager). For function logs, also add `collector.yaml` from [Logs](#logs-any-runtime) and `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml`, plus `MW_API_KEY=<MW_API_KEY>` (read by the collector config).
+
+**Direct export (no Collector):** attach only the Node.js layer, and use the env above plus `lambda-config.js`. Traces go straight to `OTEL_EXPORTER_OTLP_ENDPOINT`, authenticated by `mw.account_key`. Skip `collector.yaml`, `OPENTELEMETRY_COLLECTOR_CONFIG_URI` and `MW_API_KEY`. Verified on nodejs22.x/arm64 (2026-10-28).
+
+The OTel Node.js layer's wrapper triggers an AWS warning that callback-based handlers aren't supported from Node.js 24. Test before moving an instrumented function to `nodejs24.x`.
 
 ## Python
 
@@ -70,6 +85,22 @@ service:
 - Optionally set the function log format to JSON (`aws lambda update-function-configuration --logging-config LogFormat=JSON`, or `LoggingConfig` in IaC) for structured logs.
 - Collector builds on contrib ≥ v0.145.0 rename the gRPC exporter `otlp_grpc`. `otlp` still works as a deprecated alias, so rename it if the logs warn.
 
+**Direct export (no Collector):** attach only the Python layer and skip `collector.yaml`. Env:
+```
+AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-instrument
+OTEL_SERVICE_NAME=<service-name>
+OTEL_EXPORTER_OTLP_ENDPOINT=https://<MW_UID>.middleware.io:443
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+OTEL_EXPORTER_OTLP_HEADERS=authorization=<MW_API_KEY>
+OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<MW_API_KEY>
+OTEL_BSP_SCHEDULE_DELAY=500
+OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+OTEL_LOGS_EXPORTER=otlp
+OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION=true
+OTEL_PROPAGATORS=tracecontext
+```
+The SDK appends `/v1/traces`, `/v1/logs` and `/v1/metrics` to the base endpoint. App logs from Python `logging` go over OTLP. Lambda platform logs and non-`logging` stdout stay in CloudWatch. Verified on python3.13/arm64 (2026-10-28): with a wrong key the function logs `Failed to export spans batch code: 400`; with the right key, no errors.
+
 ## Java
 
 Layer: Java agent (`opentelemetry-javaagent-*`). Env:
@@ -81,7 +112,7 @@ OTEL_PROPAGATORS=tracecontext
 OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<MW_API_KEY>
 OTEL_SERVICE_NAME=<service-name>
 ```
-Use a single `=` after `mw.account_key`; older docs showed `==`. Custom spans: add `io.opentelemetry:opentelemetry-api` matching the layer's agent version. The agent adds cold-start latency, so raise `Timeout` if it's tight.
+Use a single `=` after `mw.account_key`; older docs showed `==`. This is already **direct export**. To also ship Lambda logs (recommended), add the Collector layer first and the logs `collector.yaml` from [Logs](#logs-any-runtime), with `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml` and `MW_API_KEY`. Custom spans: add `io.opentelemetry:opentelemetry-api` matching the layer's agent version. The agent adds cold-start latency, so raise `Timeout` if it's tight.
 
 ## Go (no layer)
 

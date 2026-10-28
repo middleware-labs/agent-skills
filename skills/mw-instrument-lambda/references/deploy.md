@@ -102,11 +102,12 @@ umask 077
 aws lambda get-function-configuration --function-name "$FN" --region "$REGION" > lambda-backup.json   # rollback copy
 
 # Build merged layers + env (python3; never prints the key)
+# COLLECTOR_ARN="" for direct export (no Collector)
 python3 - lambda-backup.json "$COLLECTOR_ARN" "$LANG_ARN" > lambda-new.json <<'PY'
 import json, os, sys
 cur = json.load(open(sys.argv[1])); collector, lang = sys.argv[2], sys.argv[3]
 keep = [l["Arn"] for l in cur.get("Layers", []) if ":184161586896:layer:opentelemetry-" not in l["Arn"]]
-layers = [collector, lang] + keep                      # OTel first; drop old OTel layers
+layers = [a for a in (collector, lang) if a] + keep    # OTel first; drop old OTel layers
 env = dict((cur.get("Environment") or {}).get("Variables") or {})
 attrs = [a for a in env.get("OTEL_RESOURCE_ATTRIBUTES", "").split(",") if a and not a.startswith("mw.account_key=")]
 env.update({
@@ -126,7 +127,7 @@ PY
 aws lambda update-function-configuration --function-name "$FN" --region "$REGION" --cli-input-json file://lambda-new.json
 aws lambda wait function-updated --function-name "$FN" --region "$REGION"
 ```
-`--cli-input-json` with `Layers` + `Environment` keeps the key off the command line. Existing `OTEL_RESOURCE_ATTRIBUTES` entries are kept, and `mw.account_key` is replaced or appended. **Rollback:** re-apply `Layers` and `Environment` from `lambda-backup.json` the same way. Delete `lambda-new.json` afterwards: it contains the key.
+With the Collector, also set `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml` and `MW_API_KEY` (for `${env:MW_API_KEY}`). For direct export, leave them out (and for Python use the direct-export env from `runtimes.md`). `--cli-input-json` with `Layers` + `Environment` keeps the key off the command line. Existing `OTEL_RESOURCE_ATTRIBUTES` entries are kept, and `mw.account_key` is replaced or appended. **Rollback:** re-apply `Layers` and `Environment` from `lambda-backup.json` the same way. Delete `lambda-new.json` afterwards: it contains the key.
 
 ## No source code available {#no-source}
 

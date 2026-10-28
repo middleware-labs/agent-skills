@@ -23,3 +23,6 @@ Start with `aws logs tail /aws/lambda/<name> --since 15m` after an invocation. F
 | Warning: `otlp` exporter deprecated | Collector ≥ contrib v0.145.0 | Rename the exporter to `otlp_grpc` in `exporters` and pipelines |
 | Traces not connected across services | Mixed propagation formats | Same `OTEL_PROPAGATORS` everywhere; `tracecontext,xray` if upstream uses X-Ray headers |
 | Change disappeared after a deploy | Function is IaC-managed, change was made via CLI | Put the change in the template |
+| Python: `Failed to export spans batch code: 400, reason: Bad Request` | Wrong key, or the `authorization` header is missing (direct export) | `OTEL_EXPORTER_OTLP_HEADERS=authorization=<MW_API_KEY>`; check the endpoint is `https://<MW_UID>.middleware.io:443` |
+| Node: `metrics export failed (error OTLPExporterError: Bad Request)` | Wrong `mw.account_key` or endpoint | Check `OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<key>` and `OTEL_EXPORTER_OTLP_ENDPOINT` |
+| `WARN: AWS Lambda has removed support for callback-based function handlers starting with Node.js 24` | The OTel Node.js wrapper uses a callback-style signature | Harmless on Node.js 20/22; test before upgrading an instrumented function to `nodejs24.x` |

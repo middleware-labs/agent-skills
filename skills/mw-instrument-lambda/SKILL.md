@@ -44,16 +44,18 @@ Instruments Lambda functions for traces and logs. No profiling on Lambda. For co
 
 ## Phase 2: Plan
 
-Pick the method from the runtime (`references/runtimes.md`):
+Pick the method from the runtime (`references/runtimes.md`). For Node.js, Python and Java, **recommend the Collector layer, but let the user opt out**:
 
-| Runtime | Method |
-|---|---|
-| Node.js | Collector layer (logs) + Node.js layer + `lambda-config.js` |
-| Python | Collector layer + Python layer + `collector.yaml` |
-| Java | Java agent layer |
-| Go (`provided.al2`/`al2023`) | OTel Go SDK + `otellambda` wrapper (code change, no layer) |
-| .NET | `MW.APM` (code change) |
-| Any (logs only) | Collector layer + `collector.yaml` with the `telemetryapi` receiver |
+| Runtime | Recommended: with Collector | Opt-out: direct to Middleware |
+|---|---|---|
+| Node.js | Collector + Node.js layer + `lambda-config.js` + logs `collector.yaml`: traces **and** Lambda logs | Node.js layer + `lambda-config.js` only: traces (and runtime metrics); logs stay in CloudWatch |
+| Python | Collector + Python layer + `collector.yaml`: traces and logs | Python layer only, OTLP/HTTP with the `authorization` header: traces and app logs |
+| Java | Collector + Java agent layer + logs `collector.yaml`: traces and Lambda logs | Java agent layer only: traces |
+| Go (`provided.al2`/`al2023`) | — | OTel Go SDK + `otellambda` wrapper (code change, no layer) |
+| .NET | — | `MW.APM` (code change) |
+| Any (logs only) | Collector + `collector.yaml` with `telemetryapi` (required) | — |
+
+Ask once, with the recommendation first: *"Use the OpenTelemetry Collector layer (recommended: also ships Lambda stdout/stderr and platform logs, buffers exports off the request path), or export directly to Middleware (one less layer and faster cold start, but no Lambda platform logs)?"* Default to the Collector if the user has no preference. In testing, dropping the Collector cut Node.js cold-start init from ~815 ms to ~440 ms. If the function already has a Collector layer with its own config, extend that config instead of replacing it.
 
 Resolve layer ARNs for the region and architecture, and check runtime compatibility (`references/layers.md`). Post a checklist with:
 - the layers to add, in order;
@@ -72,7 +74,7 @@ Wait for the user's OK.
 ## Phase 4: Verify & report
 
 1. With confirmation, invoke once: `aws lambda invoke --function-name <name> --payload '{}' --cli-binary-format raw-in-base64-out /tmp/out.json`. Use a realistic test event if the handler needs one, and ask the user for it.
-2. Check the CloudWatch logs for wrapper, exporter or collector errors: `aws logs tail /aws/lambda/<name> --since 10m`. `Extension.InitError` means the collector didn't start: set `OPENTELEMETRY_EXTENSION_LOG_LEVEL=debug` to see why. See `references/troubleshooting.md`.
+2. Check the CloudWatch logs for wrapper, exporter or collector errors: `aws logs tail /aws/lambda/<name> --since 10m | grep -iE 'Failed to export|OTLPExporterError|Exporting failed|Extension.InitError'`. Export failures are logged (e.g. Python `Failed to export spans batch code: 400`, Node `OTLPExporterError: Bad Request`, Collector `Exporting failed`), so no matches after a few invocations means exports are succeeding. `Extension.InitError` means the collector didn't start: set `OPENTELEMETRY_EXTENSION_LOG_LEVEL=debug` to see why. See `references/troubleshooting.md`.
 3. Logs from the Collector `decouple` processor are sent on the *next* invocation, so invoke twice when verifying logs.
 4. If the Middleware MCP server is connected, `query` traces for `service.name=<OTEL_SERVICE_NAME>` and logs for that service. Otherwise point to APM → Services and Logs. Never claim data arrived unless you saw it.
 5. Report:
