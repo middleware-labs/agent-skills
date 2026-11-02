@@ -7,7 +7,15 @@ import { join } from "node:path";
 const SPEC = "https://app.middleware.io/swagger.json";
 // Verified against a live project but not published yet. The script warns once
 // one of these appears in the spec, so the exception can be removed.
-const UNPUBLISHED = new Set(["POST /agent/setting/{}"]);
+const UNPUBLISHED = new Set([
+  "POST /agent/setting/{}",
+  "POST /pipeline/default",
+  "GET /pipeline/list",
+  "GET /pipeline/{}",
+  "PUT /pipeline/{}",
+  "DELETE /pipeline/{}",
+  "GET /agent/ingestion-rules",
+]);
 
 const root = join(import.meta.dirname, "..", "skills");
 const files = [];

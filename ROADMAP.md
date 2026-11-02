@@ -148,7 +148,7 @@ The skills follow the open [Agent Skills](https://agentskills.io) format (`SKILL
 
 - `mw-synthetics`: create/update HTTP and browser checks via MCP (`create_synthetic_check`, `create_browser_test`).
 - `mw-dashboards` / `mw-alerts`: dashboards, widgets, alert rules via MCP or the public API.
-- `mw-logs`: log pipelines, custom log paths, parsing (currently split across host/otel skills).
+- `mw-logs`: log pipelines, custom log paths, parsing (currently split across host/otel skills). `mw-instrument-host/references/log-settings.md` covers the host flow: test it on a live project, then remove its experimental note and the `/pipeline` entries in `check-api-endpoints.mjs` once the routes are in the spec.
 - `mw-setup/references/mcp.md`: check tool names against the live Middleware MCP server (connected 2026-10-28; actual tools include `query`, `get_resources`, `get_metrics`, `list_errors`, `get_error_details`, `list_rum_*`, synthetics and dashboards/widgets). Also document the workflow `get_resources` → `get_metrics(filters/metrics)` → `query`.
 - `mw-integrate-db`: verify MySQL, MongoDB and Redis via the API; add SQL Server, Oracle, ClickHouse, Kafka and other integrations; Kubernetes-agent integrations (`config.k8s`).
 - Cloud integrations (AWS/Azure/GCP), `mw-onboarding` orchestrator that chains setup → host/k8s → APM → RUM.
