@@ -1,6 +1,8 @@
 # Agent settings API (host integrations)
 
-Source: Middleware public API spec https://app.middleware.io/swagger.json (agent settings). Behaviour below was verified against a live project on 2026-10-26 (PostgreSQL).
+Source: https://docs.middleware.io/public-api/api.md and the spec https://app.middleware.io/swagger.json (agent settings). Behaviour below was verified against a live project on 2026-10-26 (PostgreSQL).
+
+Check the spec before calling an endpoint: `curl -s https://app.middleware.io/swagger.json | jq '.paths["/agent/setting/{hostId}"]'`. It wins on endpoint shape. This file wins on the behaviour the spec doesn't describe: save semantics, timing and which endpoints are unsafe (see `mw-setup/references/docs.md`).
 
 ## Base URL and auth
 
@@ -17,7 +19,7 @@ Keep the key out of command lines that get echoed and out of chat, for example b
 | `GET /agent/setting/{hostId}` | Full host setting. `setting.config.linux` holds `<db>_config` keys and `integrations` (databases detected by the agent). |
 | `POST /agent/setting/{hostId}?agent_type=host` | Save. Body: `{"value": "<base64 of JSON config>", "meta_data": {}}`. **Not in the published swagger yet.** |
 | `GET /agent/setting/{hostId}/detected-integrations?platform=linux` | Detected databases only. |
-| `GET /agent/setting/db/hosts/{configKey}/false` | Every host in the project that has `{configKey}`, with its settings. Use it to see what a change could affect. |
+| `GET /agent/setting/db/hosts/{configKey}/{isKubeAgent}` | Every host in the project that has `{configKey}`, with its settings. Use `false` for `isKubeAgent` on hosts. Use it to see what a change could affect. |
 | `DELETE /agent/setting/rm/{platform}/{configKey}` | **Do not use.** Removes the key from *all hosts in the project*. |
 
 The GET response also contains `setting.token` (the host's ingestion key) and stored DB passwords. Don't print the raw response; mask `password` and `token` fields.

@@ -55,3 +55,6 @@ jobs:
 
       - name: Cited docs pages are published in llms.txt
         run: node scripts/check-docs-links.mjs
+
+      - name: Cited API endpoints are in the public spec
+        run: node scripts/check-api-endpoints.mjs
