@@ -1,12 +1,14 @@
-# Using the Middleware docs (llms.txt)
+# Using the Middleware docs and API reference
 
-docs.middleware.io publishes machine-readable docs. Checked 2026-10-29.
+docs.middleware.io publishes machine-readable docs. Checked 2026-11-02.
 
 | URL | What it is | Use it for |
 |---|---|---|
 | `https://docs.middleware.io/llms.txt` | Index (~70 KB): every page as `[title](https://docs.middleware.io/<path>.md): description`, grouped by `## Section` | Finding the right page |
 | `https://docs.middleware.io/<path>.md` | One page as Markdown with YAML frontmatter (`title`, `description`, `canonical`) | Reading a page (small, no HTML) |
 | `https://docs.middleware.io/llms-full.txt` | All pages concatenated (~2 MB). Pages are separated by `---` and start with `Source: <url>` | `grep` across all docs for an exact error string, env var or config key. **Never read it whole** |
+| `https://docs.middleware.io/public-api/api.md` | Public API overview: spec location, base URL, auth | Starting any public API work |
+| `https://app.middleware.io/swagger.json` | OpenAPI spec (Swagger 2.0, ~280 KB): every published endpoint | Checking a path, method, parameters or response. **Never read it whole** |
 
 ## How to use it
 
@@ -22,6 +24,23 @@ docs.middleware.io publishes machine-readable docs. Checked 2026-10-29.
    ```
    Then walk back to the nearest `Source:` line to cite the page.
 3. **Cite** the `.md` URL you used when you tell the user what you configured.
+
+## Public API
+
+Don't guess or hard-code endpoint shapes. Read just the operations you need from the spec:
+
+```bash
+SPEC=https://app.middleware.io/swagger.json
+curl -s "$SPEC" | jq -r '.paths | keys[]' | grep -i 'agent/setting'   # find the path
+curl -s "$SPEC" | jq '.paths["/agent/hosts"]'                         # read one path
+curl -s "$SPEC" | jq '.definitions["<name from a $ref>"]'             # resolve a schema
+```
+
+- **Base URL:** `https://<MW_UID>.middleware.io/api/v1`. The spec's paths don't include it.
+- **Auth:** a public API key (`MW_PUBLIC_API_KEY`), not the ingestion key. See `credentials.md`.
+- **Spec vs. skill references:** the spec wins on endpoint shape (path, method, parameters). A reference item marked **verified** wins on behaviour the spec doesn't describe, such as merge semantics, timing and which endpoints are unsafe.
+- **Not in the spec:** the endpoint may be unpublished or gone. Only use it if a skill reference documents it, and tell the user. Never invent one.
+- **Guardrails still apply:** the spec lists what's possible, not what's safe. Confirm before any write, and follow each skill's "do not use" rules.
 
 ## Docs vs. skill references
 

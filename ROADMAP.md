@@ -18,6 +18,7 @@ This document captures the current state of the Middleware agent skills, the des
 | `mw-troubleshoot` | ❌ Not started — **top priority** |
 
 - CI (`.github/workflows/validate.yml`): lints frontmatter + reference links (`scripts/validate-skills.mjs`) and smoke-tests `npx skills add` installation.
+- Live-reference checks (separate non-required job, also weekly): cited docs pages are in `llms.txt` (`scripts/check-docs-links.mjs`), and cited API endpoints are in the public spec (`scripts/check-api-endpoints.mjs`).
 - Skills were written from docs.middleware.io, middleware-labs GitHub repos, install scripts and package registries as of **2026-10-21**. They have **not yet been tested end-to-end with real agents** on real hosts/clusters/apps.
 
 ## Design decisions

@@ -2,7 +2,7 @@
 name: mw-integrate-db
 description: EXPERIMENTAL. Set up Middleware database integrations (PostgreSQL, MySQL/MariaDB, MongoDB, Redis/Valkey) on a Linux host that runs the Middleware host agent, without the UI. Detects databases on the host, prepares the database (stats extensions, least-privilege monitoring user), saves the integration through the Middleware agent-settings REST API, and verifies the agent starts collecting. Use when asked to monitor, integrate, connect, or fix a database integration in Middleware on a VM or bare-metal host.
 metadata:
-  version: "0.1.2"
+  version: "0.1.3"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,database,integration,postgresql,mysql,mariadb,mongodb,redis,linux,experimental
