@@ -68,13 +68,13 @@ Most of the raw material is already in the existing references; the "Troubleshoo
 
 ### 1b. Finish `mw-instrument-lambda`
 
-Verified so far (2026-10-28, eu-north-1, arm64): Node.js 22 and Python 3.13, CLI path, with and without the Collector. Traces, trace-linked Python logs and the negative wrong-key check were confirmed in Middleware via MCP.
+Verified so far (2026-10-28, eu-north-1, arm64): Node.js 22 and Python 3.13, CLI path, with and without the Collector. Node.js re-verified 2026-11-05 (us-east-1, x86_64, layers 0.24.0), including trace-linked Winston logs. Traces, trace-linked Python logs and the negative wrong-key check were confirmed in Middleware via MCP.
 
 **Test the remaining paths.** Throwaway function → apply the skill → invoke → MCP check → wrong-key negative test → delete:
 - [ ] Java (`opentelemetry-javaagent` layer), with and without the Collector for logs. Check cold-start impact and whether `Timeout` needs raising.
 - [ ] Go (`provided.al2023`, `otellambda` + OTLP/HTTP direct).
 - [ ] .NET: `MW.APM` on a plain handler-style Lambda. The docs only show ASP.NET Core; find the right init point or document a plain OTel .NET SDK alternative.
-- [ ] IaC paths: SAM, Serverless Framework, CDK (`NodejsFunction` bundling hook for `lambda-config.js`) and Terraform. So far only the snippets are written.
+- [ ] IaC paths: SAM, Serverless Framework, CDK (`NodejsFunction` bundling) and Terraform. So far only the snippets are written.
 - [ ] Container-image functions (copy layer contents into `/opt`).
 - [ ] x86_64 (`amd64` collector layer). Only arm64 was tested.
 - [ ] The "no source" path (collector config from `s3://`).
