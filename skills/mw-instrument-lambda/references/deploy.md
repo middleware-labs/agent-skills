@@ -17,12 +17,12 @@ Resources:
       Environment:
         Variables:
           AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-handler
-          NODE_OPTIONS: --require ./lambda-config.js
           OTEL_SERVICE_NAME: my-service
           OTEL_EXPORTER_OTLP_ENDPOINT: https://<MW_UID>.middleware.io:443
           OTEL_RESOURCE_ATTRIBUTES: !Sub mw.account_key=${MwApiKey}
           OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION: "true"
           OTEL_PROPAGATORS: tracecontext
+          OTEL_NODE_ENABLED_INSTRUMENTATIONS: http,express,undici,winston
 ```
 Merge into existing `Layers` and `Environment.Variables` (including `Globals.Function`). Deploy: `sam deploy --parameter-overrides MwApiKey=$MW_API_KEY`. Match the collector arch to `Architectures`.
 
@@ -36,16 +36,16 @@ provider:
     OTEL_RESOURCE_ATTRIBUTES: mw.account_key=${env:MW_API_KEY}   # or ${ssm:/mw/api-key}
     OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION: "true"
     OTEL_PROPAGATORS: tracecontext
+    OTEL_NODE_ENABLED_INSTRUMENTATIONS: http,express,undici,winston
 functions:
   api:
     layers:
       - arn:aws:lambda:${aws:region}:184161586896:layer:opentelemetry-collector-arm64-0_24_0:1
       - arn:aws:lambda:${aws:region}:184161586896:layer:opentelemetry-nodejs-0_24_0:1
     environment:
-      NODE_OPTIONS: --require ./lambda-config.js
       OTEL_SERVICE_NAME: api
 ```
-Ensure `lambda-config.js` / `collector.yaml` aren't excluded by `package.patterns`. Deploy: `serverless deploy`.
+Ensure `collector.yaml` isn't excluded by `package.patterns`. Deploy: `serverless deploy`.
 
 ## CDK (TypeScript)
 
@@ -56,14 +56,14 @@ fn.addLayers(
   lambda.LayerVersion.fromLayerVersionArn(this, 'OtelNode', `arn:aws:lambda:${region}:184161586896:layer:opentelemetry-nodejs-0_24_0:1`),
 );
 fn.addEnvironment('AWS_LAMBDA_EXEC_WRAPPER', '/opt/otel-handler');
-fn.addEnvironment('NODE_OPTIONS', '--require ./lambda-config.js');
 fn.addEnvironment('OTEL_SERVICE_NAME', 'my-service');
 fn.addEnvironment('OTEL_EXPORTER_OTLP_ENDPOINT', 'https://<MW_UID>.middleware.io:443');
 fn.addEnvironment('OTEL_RESOURCE_ATTRIBUTES', `mw.account_key=${mwApiKey}`); // from SSM/Secrets Manager or context, not a literal
 fn.addEnvironment('OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION', 'true');
 fn.addEnvironment('OTEL_PROPAGATORS', 'tracecontext');
+fn.addEnvironment('OTEL_NODE_ENABLED_INSTRUMENTATIONS', 'http,express,undici,winston');
 ```
-With `NodejsFunction` (esbuild), the bundle doesn't include `lambda-config.js` by default. Add it via `bundling.commandHooks.afterBundling` (copy the file into `outputDir`). Deploy: `cdk deploy`.
+With `NodejsFunction` (esbuild), the layer can't patch libraries bundled into your code. List them in `bundling.nodeModules` (not tested here). Deploy: `cdk deploy`.
 
 ## Terraform
 
@@ -80,12 +80,12 @@ resource "aws_lambda_function" "fn" {
   environment {
     variables = merge(var.existing_env, {
       AWS_LAMBDA_EXEC_WRAPPER                     = "/opt/otel-handler"
-      NODE_OPTIONS                                = "--require ./lambda-config.js"
       OTEL_SERVICE_NAME                           = "my-service"
       OTEL_EXPORTER_OTLP_ENDPOINT                 = "https://<MW_UID>.middleware.io:443"
       OTEL_RESOURCE_ATTRIBUTES                    = "mw.account_key=${var.mw_api_key}" # sensitive var
       OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION = "true"
       OTEL_PROPAGATORS                            = "tracecontext"
+      OTEL_NODE_ENABLED_INSTRUMENTATIONS          = "http,express,undici,winston"
     })
   }
 }
@@ -104,20 +104,23 @@ aws lambda get-function-configuration --function-name "$FN" --region "$REGION" >
 # Build merged layers + env (python3; never prints the key)
 # COLLECTOR_ARN="" for direct export (no Collector)
 python3 - lambda-backup.json "$COLLECTOR_ARN" "$LANG_ARN" > lambda-new.json <<'PY'
-import json, os, sys
+import json, os, re, sys
 cur = json.load(open(sys.argv[1])); collector, lang = sys.argv[2], sys.argv[3]
 keep = [l["Arn"] for l in cur.get("Layers", []) if ":184161586896:layer:opentelemetry-" not in l["Arn"]]
 layers = [a for a in (collector, lang) if a] + keep    # OTel first; drop old OTel layers
 env = dict((cur.get("Environment") or {}).get("Variables") or {})
+opts = re.sub(r"--(require|import) \./lambda-config\.m?js", "", env.get("NODE_OPTIONS", "")).strip()   # drop the old setup, keep other flags
+if opts: env["NODE_OPTIONS"] = opts
+else: env.pop("NODE_OPTIONS", None)
 attrs = [a for a in env.get("OTEL_RESOURCE_ATTRIBUTES", "").split(",") if a and not a.startswith("mw.account_key=")]
 env.update({
   "AWS_LAMBDA_EXEC_WRAPPER": "/opt/otel-handler",
-  "NODE_OPTIONS": "--require ./lambda-config.js",
   "OTEL_SERVICE_NAME": os.environ["OTEL_SERVICE_NAME"],
   "OTEL_EXPORTER_OTLP_ENDPOINT": os.environ["MW_TARGET"].rstrip("/"),
   "OTEL_RESOURCE_ATTRIBUTES": ",".join(attrs + ["mw.account_key=" + os.environ["MW_API_KEY"]]),
   "OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION": "true",
   "OTEL_PROPAGATORS": "tracecontext",
+  "OTEL_NODE_ENABLED_INSTRUMENTATIONS": os.environ["OTEL_NODE_ENABLED_INSTRUMENTATIONS"],   # from the app's dependencies: runtimes.md#nodejs
 })
 assert len(layers) <= 5, "Lambda allows at most 5 layers"
 json.dump({"Layers": layers, "Environment": {"Variables": env}}, sys.stdout)
@@ -133,5 +136,5 @@ With the Collector, also set `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/colle
 
 If you can change config but not the package:
 - **Collector config:** host `collector.yaml` in S3 and set `OPENTELEMETRY_COLLECTOR_CONFIG_URI=s3://<bucket>.s3.<region>.amazonaws.com/collector.yaml`. The function role needs `s3:GetObject`; adds cold-start latency. Don't put the raw key in the file; use `${env:MW_API_KEY}`.
-- **Node.js without `lambda-config.js`:** drop `NODE_OPTIONS`. The layer's default exporter then uses batch export, so spans can be lost at freeze. Tell the user, and recommend adding `lambda-config.js` on the next code deploy.
+- **Node.js:** traces need only layers and env vars, so they work without a redeploy. Trace-linked Winston logs need the transport in the package.
 - Go and .NET always need a code change and a redeploy.

@@ -1,6 +1,6 @@
 # Per-runtime setup
 
-Source: Middleware AWS Lambda docs (https://docs.middleware.io/get-started/agent/aws-lambda.md; revamped version at stage-docs.middleware.io), checked 2026-10-28.
+Source: Middleware AWS Lambda docs (https://docs.middleware.io/get-started/agent/aws-lambda.md; revamped version at stage-docs.middleware.io), checked 2026-10-28. Node.js section re-verified 2026-11-05.
 
 Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On Lambda, Node.js, Java and Go send the key as the **resource attribute `mw.account_key`**, not a header. The Collector sends it as the `authorization` header.
 
@@ -9,8 +9,8 @@ Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On 
 | | With Collector layer (recommended) | Direct export (opt-out) |
 |---|---|---|
 | Lambda stdout/stderr + platform logs | ✅ via the `telemetryapi` receiver (no `traceId`) | ❌ (CloudWatch only) |
-| Trace-linked app logs (`traceId`) | ✅ Python (OTel logging over OTLP) · ❌ Node.js | ✅ Python · ❌ Node.js |
-| Export off the request path | ✅ `decouple` processor | ❌ the SDK exports during the invocation |
+| Trace-linked app logs (`traceId`) | ✅ Python (OTel logging over OTLP) · ✅ Node.js with the Winston bridge | ✅ Python · ✅ Node.js with the Winston bridge |
+| Export off the request path | ✅ `decouple` processor, for data sent through the Collector (the Node.js setup below exports direct either way) | ❌ the SDK exports during the invocation |
 | Cold start | Slower (Node.js test: ~815 ms init) | Faster (Node.js test: ~440 ms init) |
 | Layers used | 2 of 5 | 1 of 5 |
 | Failure mode | A bad `collector.yaml` fails **every invocation** (`Extension.InitError`) | Export errors are logged; invocations still succeed |
@@ -18,29 +18,52 @@ Placeholders: `<MW_UID>` from `MW_TARGET`, `<MW_API_KEY>` the ingestion key. On 
 
 ## Node.js
 
+Verified on nodejs22.x/x86_64 with Node.js layer 0.24.0 and Collector layer 0.24.0 (2026-11-05). No code change is needed for traces.
+
 Layers: Collector (first), then Node.js. Env:
 ```
 AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler
-NODE_OPTIONS=--require ./lambda-config.js          # ESM: --import ./lambda-config.mjs
 OTEL_SERVICE_NAME=<service-name>
 OTEL_EXPORTER_OTLP_ENDPOINT=https://<MW_UID>.middleware.io:443
 OTEL_RESOURCE_ATTRIBUTES=mw.account_key=<MW_API_KEY>
 OTEL_LAMBDA_DISABLE_AWS_CONTEXT_PROPAGATION=true
 OTEL_PROPAGATORS=tracecontext
+OTEL_NODE_ENABLED_INSTRUMENTATIONS=http,express,undici,winston   # build this from the app's dependencies
 ```
-`lambda-config.js` at the package root (exports spans as they finish, so none are lost when Lambda freezes):
+For platform logs, also add `collector.yaml` from [Logs](#logs-any-runtime), `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml` and `MW_API_KEY=<MW_API_KEY>`. The SDK still exports traces and app logs straight to Middleware here. The Collector only handles Telemetry API logs, so the `decouple` benefit doesn't apply to them.
+
+**Direct export (no Collector):** attach only the Node.js layer and use the env above. Skip `collector.yaml`, `OPENTELEMETRY_COLLECTOR_CONFIG_URI` and `MW_API_KEY`.
+
+**Choosing instrumentations.** Layer 0.24.0 only enables `dns`, `http` and `net` by default, plus the Lambda handler. Without `OTEL_NODE_ENABLED_INSTRUMENTATIONS`, an Express app that calls `fetch` gets a handler span and `tcp.connect`/`tls.connect`, with no route, middleware or `GET` spans (verified). Setting the variable replaces the defaults, so list everything you want:
+
+| The app uses | Add |
+|---|---|
+| `node:http`/`https`, or clients built on them | `http` |
+| `fetch` (undici) | `undici` |
+| Express / Koa / Connect / NestJS / Hapi / Restify | `express` / `koa` / `connect` / `nestjs-core` / `hapi` / `restify` |
+| PostgreSQL / MySQL / MongoDB / Redis | `pg` / `mysql` or `mysql2` / `mongodb` or `mongoose` / `redis` or `ioredis` |
+| Winston / Pino / Bunyan | `winston` / `pino` / `bunyan` |
+
+Layer 0.24.0 also accepts `amqplib`, `cassandra-driver`, `dataloader`, `fs`, `graphql`, `grpc`, `kafkajs`, `knex` and `memcached`. Only `http`, `express`, `undici` and `winston` were tested. Leave out `dns` and `net` unless the user wants connection-level spans: they add noise. More instrumentations add cold-start time.
+
+**Don't add `lambda-config.js`.** The Middleware docs and older versions of this skill add it with `global.configureTracerProvider` and `NODE_OPTIONS`. Layer 0.24.0 has no such hook: the file loads but the function is never called, so it only adds two dependencies (verified). The layer already exports spans and flushes them at the end of each invocation: 12 of 12 handler spans arrived, including the final invocation, with nothing added (verified). If a function already has the file, remove it, those two dependencies and `NODE_OPTIONS`.
+
+**Logs and trace IDs (Winston).** `console.log` and stdout only reach Middleware through the Collector's Telemetry API, without `traceId`/`spanId`. Direct export sends no stdout logs. To ship Winston logs with `traceId` and `spanId`, add the transport to the app:
+```bash
+npm install --save-exact @opentelemetry/winston-transport@0.34.0   # or the project's package manager
+```
 ```js
-const { SimpleSpanProcessor } = require("@opentelemetry/sdk-trace-base");
-const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-proto");
-global.configureTracerProvider = (tracerProvider) => {
-  tracerProvider.addSpanProcessor(new SimpleSpanProcessor(new OTLPTraceExporter()));
-};
+const { OpenTelemetryTransportV3 } = require('@opentelemetry/winston-transport');
+// keep the existing transports:
+transports: [new winston.transports.Console(), new OpenTelemetryTransportV3()],
 ```
-Add `@opentelemetry/sdk-trace-base` and `@opentelemetry/exporter-trace-otlp-proto` to the package (project package manager). For function logs, also add `collector.yaml` from [Logs](#logs-any-runtime) and `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/collector.yaml`, plus `MW_API_KEY=<MW_API_KEY>` (read by the collector config).
+- **The transport is required.** The `winston` instrumentation only adds `trace_id`/`span_id` to log lines. The layer can't ship them itself, because its bundle doesn't include the transport (verified).
+- **Pin `0.34.0` with layer 0.24.0.** `0.35.0` looks up the logger provider through `@opentelemetry/api`, while the layer registers it under the older `@opentelemetry/api-logs` symbol. Nothing is exported and nothing is logged as an error (verified). For a newer layer, retest before changing the pin, by checking that logs arrive.
+- **With the Collector, set `telemetryapi: types: [platform]`.** The default also ships a stdout copy of every line, without a `traceId`. With the default, the same 12 invocations gave 124 log records, including collector chatter, against 47 with `[platform]` (verified).
+- **Logs from the last invocation wait for the next one.** They are lost if the instance is retired first: 19 of 21 logs arrived, and the 2 missing ones were from the final invocation. `OTEL_BLRP_SCHEDULE_DELAY=100` didn't change this (verified), because Lambda freezes the function before the batch timer fires. Tell the user, and don't treat this path as a complete log record for low-traffic functions: CloudWatch still has every line.
+- Pino (`pino`) and ESM handlers weren't tested, so check that logs arrive before reporting success.
 
-**Direct export (no Collector):** attach only the Node.js layer, and use the env above plus `lambda-config.js`. Traces go straight to `OTEL_EXPORTER_OTLP_ENDPOINT`, authenticated by `mw.account_key`. Skip `collector.yaml`, `OPENTELEMETRY_COLLECTOR_CONFIG_URI` and `MW_API_KEY`. Verified on nodejs22.x/arm64 (2026-10-28).
-
-**Logs and trace IDs (Node.js).** `console.log` output only reaches Middleware through the Collector's Telemetry API (`types` includes `function`, the default), and **it carries no `traceId`/`spanId`**: it's a copy of stdout (verified). Direct export sends no logs at all. Trace-linked Node.js logs need an OTel logs bridge, e.g. `@opentelemetry/instrumentation-pino` or `-winston` plus an OTLP log exporter. That isn't covered here, so tell the user if they ask for log↔trace correlation.
+**Cold start.** One sample each on x86_64 with 256 MB: direct ~590 ms init, with Collector ~780 ms.
 
 The OTel Node.js layer's wrapper triggers an AWS warning that callback-based handlers aren't supported from Node.js 24. Test before moving an instrumented function to `nodejs24.x`.
 
@@ -191,7 +214,7 @@ service:
     logs: { receivers: [telemetryapi], processors: [resource, batch, decouple], exporters: [otlp] }
 ```
 - Keep `service.name`: Middleware rejects logs without a resource identity.
-- Logs collected this way are stdout copies: they have **no `traceId`**. For Python, use the OTel logging setup in [Python](#python) for trace-linked logs.
+- Logs collected this way are stdout copies: they have **no `traceId`**. For trace-linked logs, use the OTel logging setup in [Python](#python) or the Winston bridge in [Node.js](#nodejs), with `types: [platform]`.
 - **Never put `${env:…}` inside an inline `{ … }` YAML mapping.** The braces break parsing (`yaml: … did not find expected ',' or '}'`) and the collector won't start (`Extension.InitError`). Use block style as above, or quote the value.
 - Logs are delayed. Buffered logs go out at the start of the next invocation or at shutdown.
 - `OPENTELEMETRY_COLLECTOR_CONFIG_URI` also accepts `s3://` and `https://` (adds cold-start latency), which is useful when you can't repackage (see `deploy.md#no-source`).
