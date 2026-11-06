@@ -1,6 +1,6 @@
 # Next.js / Vercel
 
-Sources: https://docs.middleware.io/get-started/apm/nextjs.md · https://docs.middleware.io/get-started/apm/vercel-integration.md
+Sources: https://docs.middleware.io/get-started/apm/nextjs.md · https://docs.middleware.io/integrations/vercel-integration.md
 
 Requires Next.js 13.4+. Server-side only — for browser telemetry use `mw-instrument-rum`.
 
@@ -48,7 +48,7 @@ Custom logs: `tracker.info/warn/debug/error(...)`.
 ## Vercel
 
 - Use `target: "vercel"`.
-- Install the Middleware integration from the Vercel Marketplace (Pro/Enterprise plan) and enable traces in Vercel. Logs arrive via Vercel Log Drains.
+- Install the Middleware app from the Vercel Marketplace (Pro or Enterprise plan). For the projects you select, it configures a Vercel Log Drain and Trace Drain, with no code changes.
 - Edge functions are not supported.
 - Apps with no API routes / serverless functions are static: `register()` never runs → no APM data (use RUM instead).
 - Missing data after setup → redeploy.
