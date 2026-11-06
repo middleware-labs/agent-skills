@@ -15,7 +15,7 @@ This document captures the current state of the Middleware agent skills, the des
 | `mw-instrument-rum` | ✅ Done (Browser, Android, iOS, React Native, Flutter, source maps) |
 | `mw-instrument-llmo` | ✅ Done |
 | `mw-integrate-db` | 🧪 Experimental: PostgreSQL verified via API; MySQL, MongoDB, Redis unverified |
-| `mw-troubleshoot` | ❌ Not started — **top priority** |
+| `mw-troubleshoot` | 📝 Draft: workflow and routing; not yet tested with real agents |
 
 - CI (`.github/workflows/validate.yml`): lints frontmatter + reference links (`scripts/validate-skills.mjs`) and smoke-tests `npx skills add` installation.
 - Live-reference checks (separate non-required job, also weekly): cited docs pages are in `llms.txt` (`scripts/check-docs-links.mjs`), and cited API endpoints are in the public spec (`scripts/check-api-endpoints.mjs`).
@@ -44,27 +44,13 @@ This document captures the current state of the Middleware agent skills, the des
 
 This is the second half of the original goal ("instrument … and then troubleshoot for any configurations").
 
-**Unblocked (2026-10-29):** the revamped docs are live with `llms.txt`, `.md` pages and `llms-full.txt`. There are no standalone troubleshooting pages, but **~100 pages have a "Troubleshooting" section**. Plan: the skill owns the triage workflow and read-only diagnostics. For causes and fixes it greps `llms-full.txt` for the exact error string or symptom and routes to the page's Troubleshooting section, instead of vendoring tables. It keeps only verified traps the docs lack (e.g. from the Lambda E2E tests). See `mw-setup/references/docs.md`.
+**Draft (2026-11-06).** The skill owns the workflow: pin down the symptom, check what Middleware received via MCP, collect read-only evidence, match errors against the docs, and fix with confirmation. `references/routing.md` maps each area to its docs page and to the skill reference holding verified traps. Facts live in the docs' Troubleshooting sections, not in this skill. middleware-labs/mw-docs#749 expands them for the Linux agent, the Kubernetes agent and auto-instrumentation.
 
-Proposed structure:
-```
-skills/mw-troubleshoot/
-  SKILL.md                 # triage flow: what's missing (host? pods? traces? sessions?) → collect evidence → route
-  references/
-    host.md                # agent not running, no host in UI, proxy/egress, port conflicts, duplicate agents
-    kubernetes.md          # CrashLoop/OOM, DaemonSet not on all nodes, CRD conflicts, webhook/cert-manager, injection not happening
-    apm.md                 # StatusCode.UNAVAILABLE :9319, wrong MW_AGENT_SERVICE, missing service name, OTel API version clash, reloaders
-    otel.md                # 400 bad key, gRPC vs HTTP path mismatch, Bearer prefix, 4317 vs 9319
-    rum.md                 # no sessions (projectName mismatch, ad blockers, CSP, bots), CORS on propagation, source maps not resolving
-    llmo.md                # init order, missing X-Trace-Source, unflushed short-lived processes
-    diagnostics.md         # copy-paste evidence-collection commands per platform (read-only)
-```
-Principles:
-- Diagnostics must be **read-only** by default.
-- Every fix gets confirmation before it's applied.
-- Use MCP tools to check what Middleware actually received.
-
-Most of the raw material is already in the existing references; the "Troubleshooting" sections and the research notes below are the starting point.
+Next:
+- [ ] Test on real failures: stopped agent, wrong key, blocked egress, wrong `MW_AGENT_SERVICE`, pod not injected, RUM blocked by CSP. Record whether the skill finds the cause and cites the right page.
+- [ ] Expand thin Troubleshooting sections in the docs where tests show gaps (OTel Collector, Windows, Docker, APM), rather than adding them here.
+- [ ] Ask Middleware to publish exact agent and SDK error strings with their causes, so `llms-full.txt` searches hit.
+- [ ] Retire the mw-agent-troubleshooting-guide wiki in favour of the docs, once its content is in the docs.
 
 ### 1b. Finish `mw-instrument-lambda`
 

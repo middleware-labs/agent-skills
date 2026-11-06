@@ -2,7 +2,7 @@
 
 [Agent Skills](https://agentskills.io) that teach coding agents (Claude Code, Cursor, Codex, Copilot, Gemini CLI, …) how to instrument infrastructure and applications with [Middleware](https://middleware.io) and verify that telemetry arrives.
 
-> **Status: v0.1 preview.** Instrumentation skills are in place; the `mw-troubleshoot` skill is coming next. See [ROADMAP.md](ROADMAP.md) for design decisions, open questions and next steps.
+> **Status: v0.1 preview.** Instrumentation skills are in place, and `mw-troubleshoot` is a first draft. See [ROADMAP.md](ROADMAP.md) for design decisions, open questions and next steps.
 
 ## Skills
 
@@ -16,6 +16,7 @@
 | [`mw-instrument-otel`](skills/mw-instrument-otel) | Point existing OpenTelemetry SDKs / Collectors / Fluent Bit at Middleware |
 | [`mw-instrument-rum`](skills/mw-instrument-rum) | Browser RUM (React, Next.js, Angular, Vue, Svelte, HTML), Android, iOS, React Native, Flutter, source maps |
 | [`mw-instrument-llmo`](skills/mw-instrument-llmo) | LLM Observability via `middleware-llmobs`, Traceloop, OpenLIT |
+| [`mw-troubleshoot`](skills/mw-troubleshoot) | **Draft.** Diagnose missing or wrong data: pins down the symptom, checks what Middleware received via MCP, collects read-only evidence, matches errors against the docs' Troubleshooting sections, and fixes with confirmation |
 | [`mw-integrate-db`](skills/mw-integrate-db) | **Experimental.** PostgreSQL, MySQL/MariaDB, MongoDB, Redis integrations on Linux hosts via the agent-settings API (no UI). Needs a public API key |
 
 Each skill is a `SKILL.md` (workflow + guardrails) plus `references/` (exact commands, package names, options) that the agent loads only when needed.
