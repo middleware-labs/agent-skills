@@ -2,7 +2,7 @@
 name: mw-instrument-host
 description: Install, configure, upgrade or remove the Middleware infrastructure (host) agent on Linux (Debian/Ubuntu, RHEL/CentOS/Amazon Linux), Docker hosts, Windows, macOS, and AWS ECS (EC2 daemon or Fargate sidecar), including host tags, proxy settings, log collection, and OBI/eBPF service instrumentation via the mw-agent CLI. Use when asked to monitor a server, VM, EC2 instance, Docker host, Windows machine, Mac, or ECS cluster with Middleware, or to install/repair the mw-agent.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,infrastructure,host-agent,linux,docker,windows,macos,ecs,logs
@@ -47,7 +47,7 @@ For fleets, generate config-management code (Ansible task, cloud-init `runcmd`, 
 
 ## Phase 3: Configure (optional)
 
-- **Log collection**: by default the Linux agent tails `/var/log/**/*.log*` and Docker container logs. Custom paths are configured in the UI (Settings → Log Ingestion Control; requires Infra Log Monitoring), not in local YAML. Docker agents can't pick up new paths dynamically — they need volume mounts at install time.
+- **Log collection**: by default the Linux agent tails `/var/log/**/*.log*` and Docker container logs. Custom paths are configured in Middleware (requires Infra Log Monitoring), not in local YAML. To set paths, data masking or extracted attributes without the UI, follow `references/log-settings.md`: it always creates a config group **and** a pipeline linked to it, because there is no config group UI. Docker agents can't pick up new paths dynamically — they need volume mounts at install time.
 - **Apps on this host** (APM): either instrument the code (`mw-instrument-apm`) and point it at `localhost:9319`/`9320`, or use zero-code instrumentation through the agent:
   ```bash
   sudo mw-agent services list [--language python] [--all]

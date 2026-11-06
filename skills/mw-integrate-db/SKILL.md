@@ -2,7 +2,7 @@
 name: mw-integrate-db
 description: EXPERIMENTAL. Set up Middleware database integrations (PostgreSQL, MySQL/MariaDB, MongoDB, Redis/Valkey) on a Linux host that runs the Middleware host agent, without the UI. Detects databases on the host, prepares the database (stats extensions, least-privilege monitoring user), saves the integration through the Middleware agent-settings REST API, and verifies the agent starts collecting. Use when asked to monitor, integrate, connect, or fix a database integration in Middleware on a VM or bare-metal host.
 metadata:
-  version: "0.1.3"
+  version: "0.1.4"
   author: middleware-labs
   repository: https://github.com/middleware-labs/agent-skills
   tags: middleware,database,integration,postgresql,mysql,mariadb,mongodb,redis,linux,experimental
@@ -18,6 +18,7 @@ Configures DB integrations for the **Linux host agent** through the same REST AP
 
 ## Ground rules
 
+- **Save database integrations on the host, not in a config group.** Use `GET` and `POST /agent/setting/{hostId}`. Settings usually differ per host, and a group applies one configuration to all its hosts.
 - **Never call `DELETE /agent/setting/rm/...`.** It removes the integration from *every host in the project*. To remove an integration from one host, POST an empty object for that key (see `references/api.md`).
 - **Always GET before POST.** Save the current host setting to a local backup file first. Change only the one integration key you're configuring.
 - Confirm before any `sudo`, database restart, `CREATE USER`/`GRANT`, or API write. Show the planned payload with passwords masked.
