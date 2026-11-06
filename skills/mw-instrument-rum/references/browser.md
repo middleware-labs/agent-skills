@@ -25,6 +25,8 @@ Sources: https://docs.middleware.io/get-started/rum/javascript.md · /rum/instal
 ```
 Docs: "This URL always serves the latest browser SDK release". Put both tags in `<head>`, before app bundles.
 
+Keep `libs/0.0.2` exactly (*verified* 2026-11-06). Each release overwrites that path, so there is no newer version path to move to: `libs/0.0.3` and `libs/latest` return 404. `libs/0.0.1` still loads but serves an older build, without options such as `captureResponseBodies`. If an existing install uses any other `libs/` path, change it to `0.0.2`.
+
 ## Options
 
 | Option | Type | Default | Notes |

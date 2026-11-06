@@ -184,6 +184,8 @@ These are used or mentioned in the skills but could not be confirmed from public
 - Node.js docs say Node 18.17.1+, but the npm `engines` field says `^18.19.0 || >=20.6.0`.
 - Python docs say 3.9+, but PyPI `requires_python` says `>=3.8`.
 - RUM docs disagree on the default propagation format (b3 vs W3C).
+- RUM mobile pages show old SDK versions (checked 2026-11-06 against the registries): React Native pins `2.3.1` (latest 2.3.2), Flutter shows `middleware_flutter_opentelemetry: ^1.1.1` (latest 2.2.3), and iOS SPM says `from: "2.3.0"` (latest 2.3.2). The RUM skill's version table wins until the pages are fixed.
+- React Native Expo config plugin (2.3.2) breaks iOS prebuilds on Expo SDK 58 in three ways (verified 2026-11-06). (1) It doesn't add the `middleware-labs/cocoapods-specs` Podfile source, so `MiddlewareRum` 2.3.1+ can't be resolved. (2) Its Reachability step skips any Podfile that matches `/^\s*use_frameworks!/m`, and Expo's Podfile always has conditional `use_frameworks!` lines. (3) When `ios.deploymentTarget` is unset it writes `13.0`, lowering Expo's 16.4 default. The RUM skill works around all three with a local config plugin and the `iosDeploymentTarget` option until the SDK is fixed.
 - mw-docs.middleware.io (and its `llms.txt`) still documents the old Python `middleware-apm` / `middleware.ini` flow.
 - The browser RUM source repo is private and there's no npm package. If an npm package is planned, the RUM skill should add a bundler path.
 
