@@ -1,6 +1,6 @@
 # Android RUM
 
-Source: https://docs.middleware.io/get-started/rum/android.md · SDK 3.2.0 · minSdk 21, compileSdk 35+, Kotlin Gradle Plugin 2.0+, core library desugaring required.
+Source: https://docs.middleware.io/get-started/rum/android.md · SDK 3.2.2 (latest on Maven Central, *verified* 2026-11-06) · minSdk 21, compileSdk 35+, Kotlin Gradle Plugin 2.0+, core library desugaring required.
 
 ## Gradle (app module)
 
@@ -11,11 +11,11 @@ android {
     }
 }
 dependencies {
-    implementation 'io.github.middleware-labs:android-sdk:3.2.0'
+    implementation 'io.github.middleware-labs:android-sdk:3.2.2'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 ```
-(Kotlin DSL: `isCoreLibraryDesugaringEnabled = true`, `implementation("io.github.middleware-labs:android-sdk:3.2.0")`.)
+(Kotlin DSL: `isCoreLibraryDesugaringEnabled = true`, `implementation("io.github.middleware-labs:android-sdk:3.2.2")`.)
 
 ## Init in an Application subclass
 

@@ -32,7 +32,7 @@ Derive `appVersion` from one source (package.json version or git SHA) for both t
 ## Android (ProGuard/R8)
 
 ```groovy
-plugins { id 'io.github.middleware-labs.sourcemap' version '1.0.0' }
+plugins { id 'io.github.middleware-labs.sourcemap' version '1.0.1' }
 middlewareSourcemap {
     apiKey = '<rum_account_key>'
     backendUrl = 'https://app.middleware.io/api/v1/rum/getSasUrl'
