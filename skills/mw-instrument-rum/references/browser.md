@@ -48,11 +48,12 @@ Keep `libs/0.0.2` exactly (*verified* 2026-11-06). Each release overwrites that 
 | `captureResponseBodies` | boolean | `false` | |
 | `console` | boolean | `true` | |
 | `errors` | boolean | `true` | |
-| `blockBotTraffic` | boolean | `true` | Headless browsers dropped |
+| `blockBotTraffic` | boolean | `true` | Known crawlers and headless browsers dropped |
+| `blockUserAgents` | (string \| RegExp)[] | `[]` | Extra user agents to drop: strings match as case-insensitive substrings. Applies even with `blockBotTraffic: false` |
 | `vcsCommitSHA`, `vcsRepositoryURL` | string | — | For OpsAI code-level fixes |
 
 Settings saved on the in-app installation page (Network, Errors, Session Recording, WebSocket, Web Vitals, Long Tasks, Console, Allowed origins) **override** values passed to `track()`.
-`track()` skips init and logs `"accountKey is required"`, `"target is required"` or `"bot traffic blocked"`.
+`track()` skips init and returns `"accountKey is required"`, `"target is required"`, `"bot traffic blocked"` or `"user agent blocked"`.
 
 ## Runtime API
 
